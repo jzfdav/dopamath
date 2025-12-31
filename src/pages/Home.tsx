@@ -1,21 +1,18 @@
-// import { useNavigate } from 'react-router-dom';
-
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/Button";
 
 const PRIME_INTERVALS = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29];
 
 export const Home = () => {
-	//   const navigate = useNavigate(); // Router not setup yet, will uncomment later
+	const navigate = useNavigate();
 
 	const handleUrgeKiller = () => {
-		// navigate('/game?mode=blitz');
-		console.log("Urge Killer Triggered");
+		navigate("/game?mode=blitz");
 	};
 
 	const handlePrimeSelect = (minutes: number) => {
-		// navigate(`/game?mode=prime&minutes=${minutes}`);
-		console.log(`Prime Interval Selected: ${minutes} min`);
+		navigate(`/game?mode=prime&minutes=${minutes}`);
 	};
 
 	return (
