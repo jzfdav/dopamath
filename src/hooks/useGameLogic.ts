@@ -104,15 +104,18 @@ export const useGameLogic = () => {
 			});
 
 			// Delay the transition to next question to show feedback
-			setTimeout(() => {
-				const newDifficulty =
-					isCorrect && (state.streak + 1) % 5 === 0
-						? Math.min(state.difficulty + 1, 10)
-						: state.difficulty;
+			setTimeout(
+				() => {
+					const newDifficulty =
+						isCorrect && (state.streak + 1) % 5 === 0
+							? Math.min(state.difficulty + 1, 10)
+							: state.difficulty;
 
-				setSelectedAnswer(null);
-				nextQuestion(newDifficulty);
-			}, 600);
+					setSelectedAnswer(null);
+					nextQuestion(newDifficulty);
+				},
+				isCorrect ? 100 : 250,
+			);
 		},
 		[
 			question,

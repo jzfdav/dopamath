@@ -94,8 +94,8 @@ export const Summary = () => {
 					Session Complete
 				</span>
 
-				<div className="relative mb-12 flex flex-col items-center">
-					<h1 className="text-9xl font-black text-transparent bg-clip-text bg-gradient-to-br from-primary to-secondary filter drop-shadow-neon tracking-tighter leading-none">
+				<div className="relative mb-12 flex flex-col items-center px-6">
+					<h1 className="text-9xl font-black text-transparent bg-clip-text bg-gradient-to-br from-primary to-secondary filter drop-shadow-neon leading-none">
 						{state.score}
 					</h1>
 					{isNewRecord && (
