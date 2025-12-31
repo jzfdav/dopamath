@@ -40,7 +40,7 @@ export const Home = () => {
 			</div>
 
 			{/* Thumb Zone Section (Anchored to bottom) */}
-			<div className="flex-none flex flex-col justify-end gap-6 w-full z-20 pb-8 pt-4">
+			<div className="flex-none flex flex-col justify-end gap-6 w-full z-20 pb-4 pt-4">
 				{/* Mode Toggles / Secondary Actions can go here if needed */}
 
 				<div className="flex flex-col gap-4">
