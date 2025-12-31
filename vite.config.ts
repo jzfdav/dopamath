@@ -41,6 +41,18 @@ export default defineConfig({
 			"@": path.resolve(__dirname, "./src"),
 		},
 	},
+	build: {
+		rollupOptions: {
+			output: {
+				manualChunks: {
+					"vendor-core": ["react", "react-dom", "react-router-dom"],
+					"vendor-motion": ["framer-motion"],
+					"vendor-charts": ["recharts"],
+					"vendor-utils": ["lucide-react", "clsx", "tailwind-merge"],
+				},
+			},
+		},
+	},
 	test: {
 		globals: true,
 		environment: "jsdom",
