@@ -1,9 +1,10 @@
 import { motion } from "framer-motion";
-import { BarChart3, Settings as SettingsIcon } from "lucide-react";
+import { BarChart3, HelpCircle, Settings as SettingsIcon } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/Button";
 import { TimeSelector } from "@/components/TimeSelector";
+import { InfoModal } from "@/components/InfoModal";
 
 const SESSION_INTERVALS = [1, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29];
 
@@ -13,6 +14,7 @@ export const Home = () => {
 	const [contentMode, setContentMode] = useState<"arithmetic" | "mixed">(
 		"mixed",
 	);
+	const [isInfoOpen, setIsInfoOpen] = useState(false);
 
 	const handleUrgeKiller = () => {
 		navigate(`/game?mode=prime&minutes=${selectedTime}&content=${contentMode}`);
@@ -30,6 +32,7 @@ export const Home = () => {
 			exit={{ opacity: 0, x: 20 }}
 			transition={{ duration: 0.3 }}
 		>
+			<InfoModal isOpen={isInfoOpen} onClose={() => setIsInfoOpen(false)} />
 
 			{/* Hero Section */}
 			<div className="flex-1 flex flex-col items-center justify-center w-full z-10">
@@ -101,51 +104,62 @@ export const Home = () => {
 					</div>
 				</div>
 
-				{/* Primary CTA with Secondary Actions */}
-				<motion.div
-					initial={{ y: 20, opacity: 0 }}
-					animate={{ y: 0, opacity: 1 }}
-					transition={{
-						delay: 0.3,
-						type: "spring",
-						stiffness: 200,
-						damping: 20,
-					}}
-					className="flex items-center gap-3"
-				>
-					<Button
-						variant="ghost"
-						size="sm"
-						onClick={() => navigate("/stats")}
-						className="p-2 h-20 w-14 glass-panel rounded-2xl flex flex-col items-center justify-center text-text-dim/60 hover:text-secondary hover:border-secondary/30 transition-all active:scale-90"
-					>
-						<BarChart3 size={20} />
-						<span className="text-[8px] mt-1 font-bold uppercase tracking-tighter">Stats</span>
-					</Button>
+				{/* Navigation Cluster & Primary CTA */}
+				<div className="flex flex-col gap-4">
+					<div className="flex items-center gap-3">
+						<Button
+							variant="ghost"
+							size="sm"
+							onClick={() => setIsInfoOpen(true)}
+							className="flex-1 h-12 glass-panel rounded-xl flex items-center justify-center gap-2 text-text-dim/60 hover:text-primary transition-all active:scale-95"
+						>
+							<HelpCircle size={18} />
+							<span className="text-[10px] font-black uppercase tracking-widest">Info</span>
+						</Button>
+						<Button
+							variant="ghost"
+							size="sm"
+							onClick={() => navigate("/stats")}
+							className="flex-1 h-12 glass-panel rounded-xl flex items-center justify-center gap-2 text-text-dim/60 hover:text-secondary transition-all active:scale-95"
+						>
+							<BarChart3 size={18} />
+							<span className="text-[10px] font-black uppercase tracking-widest">Stats</span>
+						</Button>
+						<Button
+							variant="ghost"
+							size="sm"
+							onClick={() => navigate("/settings")}
+							className="flex-1 h-12 glass-panel rounded-xl flex items-center justify-center gap-2 text-text-dim/60 hover:text-primary transition-all active:scale-95"
+						>
+							<SettingsIcon size={18} />
+							<span className="text-[10px] font-black uppercase tracking-widest">Set</span>
+						</Button>
+					</div>
 
-					<Button
-						variant="primary"
-						size="xl"
-						className="flex-1 h-20 text-xl shadow-[0_0_30px_rgba(0,255,157,0.4)] animate-pulse hover:animate-none flex items-center justify-center gap-3 text-black font-black tracking-wider px-0"
-						onClick={handleUrgeKiller}
+					<motion.div
+						initial={{ y: 20, opacity: 0 }}
+						animate={{ y: 0, opacity: 1 }}
+						transition={{
+							delay: 0.3,
+							type: "spring",
+							stiffness: 200,
+							damping: 20,
+						}}
 					>
-						<span className="relative flex h-3 w-3">
-							<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-black opacity-75"></span>
-							<span className="relative inline-flex rounded-full h-3 w-3 bg-black"></span>
-						</span>
-						ENGAGE
-					</Button>
-
-					<Button
-						variant="ghost"
-						size="sm"
-						onClick={() => navigate("/settings")}
-						className="p-2 h-20 w-14 glass-panel rounded-2xl flex flex-col items-center justify-center text-text-dim/60 hover:text-primary hover:border-primary/30 transition-all active:scale-90"
-					>
-						<SettingsIcon size={20} />
-						<span className="text-[8px] mt-1 font-bold uppercase tracking-tighter">Set</span>
-					</Button>
-				</motion.div>
+						<Button
+							variant="primary"
+							size="xl"
+							className="w-full h-20 text-xl shadow-[0_0_40px_rgba(0,255,157,0.4)] animate-pulse hover:animate-none flex items-center justify-center gap-4 text-black font-black tracking-widest"
+							onClick={handleUrgeKiller}
+						>
+							<span className="relative flex h-3 w-3">
+								<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-black opacity-75"></span>
+								<span className="relative inline-flex rounded-full h-3 w-3 bg-black"></span>
+							</span>
+							ENGAGE
+						</Button>
+					</motion.div>
+				</div>
 			</div>
 		</motion.div>
 	);
