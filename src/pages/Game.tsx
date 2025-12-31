@@ -1,8 +1,10 @@
-import { AnimatePresence, motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/Button";
 import { Lifelines } from "@/components/Lifelines";
 import { useGameLogic } from "@/hooks/useGameLogic";
 import { VisualTimer } from "@/components/VisualTimer";
+import { ParticleBurst } from "@/components/ParticleBurst";
+import { useState, useEffect } from "react";
 
 export const Game = () => {
 	const {
@@ -10,6 +12,7 @@ export const Game = () => {
 		question,
 		options,
 		disabledOptions,
+		isFrozen,
 		isSimplifyActive,
 		selectedAnswer,
 		setIsFrozen,
@@ -19,11 +22,34 @@ export const Game = () => {
 		handleAnswer,
 	} = useGameLogic();
 
+	const [showParticles, setShowParticles] = useState(false);
+	const [shake, setShake] = useState(false);
+
+	// Detect correct/wrong answer for visual effects
+	useEffect(() => {
+		if (selectedAnswer !== null && question) {
+			if (selectedAnswer === question.answer) {
+				setShowParticles(true);
+			} else {
+				setShake(true);
+				setTimeout(() => setShake(false), 400);
+			}
+		}
+	}, [selectedAnswer, question]);
+
+	if (!question) return null;
+
+	const handleFreeze = () => {
+		setIsFrozen(true);
+		// Logic is actually handled in Lifelines button via handleUse, 
+		// but we still need the props here if we want to call it manually
+	};
+
 	const handleFiftyFifty = () => {
-		if (!question) return;
 		const wrongOptions = options.filter((opt) => opt !== question.answer);
-		// Disable 2 random wrong options
-		const toDisable = wrongOptions.sort(() => Math.random() - 0.5).slice(0, 2);
+		const toDisable = wrongOptions
+			.sort(() => Math.random() - 0.5)
+			.slice(0, 2);
 		setDisabledOptions(toDisable);
 	};
 
@@ -35,98 +61,131 @@ export const Game = () => {
 		nextQuestion(state.difficulty);
 	};
 
-	const handleFreeze = () => {
-		setIsFrozen(true);
-		setTimeout(() => {
-			setIsFrozen(false);
-		}, 10000); // 10s freeze
-	};
-
-	if (!question) return null;
-
 	return (
 		<motion.div
-			className="flex flex-col w-full h-full relative p-4 overflow-hidden"
+			className="flex flex-col w-full h-full relative px-6 overflow-hidden"
 			initial={{ opacity: 0 }}
-			animate={{ opacity: 1 }}
-			exit={{ opacity: 0 }}
+			animate={{
+				opacity: 1,
+				x: shake ? [-10, 10, -10, 10, 0] : 0,
+			}}
+			transition={{ duration: shake ? 0.4 : 0.3 }}
 		>
-			{/* Top Zone: Stats (Read-Only) */}
-			<div className="flex-none pt-safe w-full flex justify-between items-start z-10">
-				<div className="flex flex-col glass-panel px-4 py-2 rounded-xl">
+			<ParticleBurst active={showParticles} onComplete={() => setShowParticles(false)} />
+
+			{/* Game Header */}
+			<div className="flex-none pt-safe pb-4 flex items-center justify-between z-10">
+				<div className="flex flex-col">
 					<span className="text-[10px] text-text-dim uppercase tracking-widest font-bold">
 						Score
 					</span>
-					<span className="text-xl font-mono text-primary text-shadow-neon">
-						{state.score}
-					</span>
+					<div className="flex items-center gap-2">
+						<span className="text-2xl font-black text-primary drop-shadow-neon">
+							{state.score}
+						</span>
+						{state.streak > 1 && (
+							<motion.div
+								initial={{ scale: 0.5, opacity: 0 }}
+								animate={{ scale: 1, opacity: 1 }}
+								className="px-2 py-0.5 bg-secondary/20 border border-secondary/30 rounded-full"
+							>
+								<span className="text-[10px] font-black text-secondary uppercase tracking-tighter">
+									{state.streak}x Combo
+								</span>
+							</motion.div>
+						)}
+					</div>
 				</div>
 
 				{/* Dynamic Visual Timer */}
 				<VisualTimer
 					timeLeft={state.timeLeft}
 					totalTime={state.totalTime}
-					isFrozen={setIsFrozen === undefined ? false : state.timeLeft === state.timeLeft}
+					isFrozen={isFrozen}
 				/>
 
-				<div className="flex flex-col items-end glass-panel px-4 py-2 rounded-xl">
+				<div className="flex flex-col items-end px-4 py-2 rounded-xl">
 					<span className="text-[10px] text-text-dim uppercase tracking-widest font-bold">
-						Streak
+						Level
 					</span>
-					<span className="text-xl font-mono text-secondary text-shadow-neon">
-						{state.streak}
+					<span className="text-xl font-black text-secondary">
+						{state.difficulty}
 					</span>
 				</div>
 			</div>
 
-			{/* Middle Zone: The Equation (Visual Focus) */}
-			<div className="flex-1 flex flex-col items-center justify-center w-full z-10 my-4">
-				<AnimatePresence mode="wait">
-					<motion.div
-						key={question.equation}
-						initial={{ opacity: 0, scale: 0.5, y: 50 }}
-						animate={{ opacity: 1, scale: 1, y: 0 }}
-						exit={{ opacity: 0, scale: 1.5, filter: "blur(10px)" }}
-						transition={{ type: "spring", stiffness: 300, damping: 20 }}
-						className="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-white/80 drop-shadow-2xl text-center px-4"
-					>
+			{/* Main Question Display */}
+			<div className="flex-1 flex flex-col items-center justify-center relative z-10">
+				<motion.div
+					key={question.equation}
+					initial={{ scale: 0.8, opacity: 0, y: 20 }}
+					animate={{ scale: 1, opacity: 1, y: 0 }}
+					className="w-full text-center px-4"
+				>
+					<div className={`text-6xl font-black mb-12 tracking-tighter transition-all duration-300 ${isSimplifyActive ? "scale-110 drop-shadow-[0_0_30px_rgba(255,255,255,0.4)]" : "text-white"}`}>
 						{question.equation}
-					</motion.div>
-				</AnimatePresence>
+						{isSimplifyActive && (
+							<motion.div
+								animate={{ opacity: [0, 1, 0] }}
+								transition={{ repeat: Infinity, duration: 1 }}
+								className="mt-4 text-xs text-primary font-bold uppercase tracking-[0.5em]"
+							>
+								Simplified
+							</motion.div>
+						)}
+					</div>
+				</motion.div>
+
+				{/* Answer Options Grid */}
+				<div className="grid grid-cols-2 gap-4 w-full">
+					<AnimatePresence mode="popLayout">
+						{options.map((option, index) => {
+							const isCorrect = option === question.answer;
+							const isSelected = selectedAnswer === option;
+							const isDisabled = disabledOptions.includes(option);
+
+							return (
+								<motion.div
+									key={`${question.equation}-${option}`}
+									initial={{ opacity: 0, scale: 0.9, y: 10 }}
+									animate={{
+										opacity: isDisabled ? 0.3 : 1,
+										scale: isSelected ? 1.05 : 1,
+										y: 0
+									}}
+									transition={{ delay: index * 0.05 }}
+								>
+									<Button
+										variant={
+											isSelected
+												? isCorrect
+													? "primary"
+													: "danger"
+												: "ghost"
+										}
+										size="lg"
+										disabled={isDisabled || selectedAnswer !== null}
+										className={`w-full h-24 text-2xl font-black rounded-3xl transition-all ${isSelected ? "ring-4 ring-white/20" : "glass-panel"
+											} ${isDisabled ? "opacity-30 grayscale cursor-not-allowed" : ""}`}
+										onClick={() => handleAnswer(option)}
+									>
+										{option}
+									</Button>
+								</motion.div>
+							);
+						})}
+					</AnimatePresence>
+				</div>
 			</div>
 
-			{/* Bottom Zone: Controls (Thumb Zone) */}
-			<div className="flex-none w-full flex flex-col gap-6 z-20 pb-safe">
-				{/* Lifelines Bar */}
-				<div className="flex justify-center w-full">
-					<Lifelines
-						onFiftyFifty={handleFiftyFifty}
-						onSkip={handleSkip}
-						onFreeze={handleFreeze}
-						onSimplify={handleSimplify}
-					/>
-				</div>
-
-				{/* Answer Grid */}
-				<div className="grid grid-cols-2 gap-3 w-full h-64">
-					{options.map((opt, i) => (
-						<Button
-							key={`${question.equation}-${opt}-${i}`}
-							variant="glass"
-							size="xl"
-							disabled={disabledOptions.includes(opt)}
-							className={`h-full text-4xl font-mono transition-all active:scale-95 
-                                ${disabledOptions.includes(opt) ? "opacity-20 blur-sm" : "hover:bg-white/10 hover:border-primary/50"}
-                                ${selectedAnswer !== null && opt === question.answer ? "bg-primary! text-black border-primary shadow-[0_0_30px_rgba(0,255,157,0.6)]" : ""}
-                                ${selectedAnswer !== null && selectedAnswer === opt && opt !== question.answer ? "bg-error! text-white border-error shadow-[0_0_30px_rgba(255,0,85,0.6)]" : ""}
-                                ${isSimplifyActive && opt === question.answer ? "animate-pulse border-primary/50 shadow-[0_0_20px_rgba(0,255,157,0.3)]" : ""}
-                            `}
-							onClick={() => handleAnswer(opt)}
-						>
-							{opt}
-						</Button>
-					))}
-				</div>
+			{/* UI Footer */}
+			<div className="flex-none pt-4 pb-safe z-10">
+				<Lifelines
+					onFreeze={handleFreeze}
+					onFiftyFifty={handleFiftyFifty}
+					onSimplify={handleSimplify}
+					onSkip={handleSkip}
+				/>
 			</div>
 		</motion.div>
 	);

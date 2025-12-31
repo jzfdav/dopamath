@@ -5,14 +5,14 @@ import {
 	type GameMode,
 	useGame,
 } from "@/context/GameContext";
-import { useSettings } from "@/context/SettingsContext";
+import { useFeedback } from "./useFeedback";
 import { generateEquation, generateOptions } from "@/utils/math";
 
 export const useGameLogic = () => {
 	const [searchParams] = useSearchParams();
 	const navigate = useNavigate();
-	const { settings } = useSettings();
 	const { state, dispatch } = useGame();
+	const { success, error } = useFeedback();
 
 	const [question, setQuestion] = useState<{
 		equation: string;
@@ -23,6 +23,7 @@ export const useGameLogic = () => {
 	const [isFrozen, setIsFrozen] = useState(false);
 	const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
 	const [isSimplifyActive, setIsSimplifyActive] = useState(false);
+	const [isTransitioning, setIsTransitioning] = useState(false);
 
 	// Check for game over
 	useEffect(() => {
@@ -39,6 +40,8 @@ export const useGameLogic = () => {
 			setDisabledOptions([]);
 			setIsFrozen(false);
 			setIsSimplifyActive(false);
+			setSelectedAnswer(null);
+			setIsTransitioning(false);
 		},
 		[state.contentMode],
 	);
@@ -60,11 +63,10 @@ export const useGameLogic = () => {
 			},
 		});
 
-		// Generate first question
 		const q = generateEquation(1, contentMode);
 		setQuestion(q);
 		setOptions(generateOptions(q.answer));
-	}, [searchParams, dispatch, state.status]); // Included missing dependencies
+	}, [searchParams, dispatch, state.status]);
 
 	// Timer Loop
 	useEffect(() => {
@@ -80,83 +82,68 @@ export const useGameLogic = () => {
 	}, [isFrozen, state.status, dispatch]);
 
 	const handleAnswer = useCallback(
-		(selected: number) => {
-			if (!question || selectedAnswer !== null) return;
+		(answer: number) => {
+			if (!question || selectedAnswer !== null || isTransitioning) return;
 
-			const isCorrect = selected === question.answer;
+			setSelectedAnswer(answer);
+			setIsTransitioning(true);
+			const isCorrect = answer === question.answer;
 
-			// Handle Second Chance
-			if (!isCorrect && state.lifelines.secondChance) {
-				if (navigator.vibrate) navigator.vibrate([10, 50, 10]);
+			if (isCorrect) {
+				success();
+			} else {
+				error();
+				// Handle Second Chance
+				if (state.lifelines.secondChance) {
+					dispatch({
+						type: "USE_LIFELINE",
+						payload: { name: "secondChance" },
+					});
 
-				dispatch({
-					type: "USE_LIFELINE",
-					payload: { name: "secondChance" },
-				});
+					// Maintain streak on second chance
+					setTimeout(() => {
+						dispatch({
+							type: "ANSWER_QUESTION",
+							payload: {
+								id: crypto.randomUUID(),
+								isCorrect: true,
+								points: Math.floor(5 * state.difficulty),
+								equation: question.equation,
+								correctAnswer: question.answer,
+								selectedAnswer: answer,
+								timestamp: Date.now(),
+							},
+						});
+						nextQuestion(state.difficulty);
+					}, 300);
+					return;
+				}
+			}
 
+			const delay = isCorrect ? 150 : 400;
+			setTimeout(() => {
 				dispatch({
 					type: "ANSWER_QUESTION",
 					payload: {
 						id: crypto.randomUUID(),
-						isCorrect: true, // Streak maintained
-						points: Math.floor(5 * state.difficulty),
+						isCorrect,
+						points: isCorrect ? 10 * state.difficulty : 0,
 						equation: question.equation,
 						correctAnswer: question.answer,
-						selectedAnswer: selected,
+						selectedAnswer: answer,
 						timestamp: Date.now(),
 					},
 				});
 
-				setSelectedAnswer(selected);
-				setTimeout(() => {
-					setSelectedAnswer(null);
-					nextQuestion(state.difficulty);
-				}, 250);
-				return;
-			}
+				const newDifficulty =
+					isCorrect && (state.streak + 1) % 5 === 0
+						? Math.min(state.difficulty + 1, 10)
+						: state.difficulty;
 
-			setSelectedAnswer(selected);
-
-			if (settings.hapticsEnabled && navigator.vibrate) {
-				navigator.vibrate(isCorrect ? 5 : [50, 50, 50]);
-			}
-
-			dispatch({
-				type: "ANSWER_QUESTION",
-				payload: {
-					id: crypto.randomUUID(),
-					isCorrect,
-					points: isCorrect ? 10 * state.difficulty : 0,
-					equation: question.equation,
-					correctAnswer: question.answer,
-					selectedAnswer: selected,
-					timestamp: Date.now(),
-				},
-			});
-
-			setTimeout(
-				() => {
-					const newDifficulty =
-						isCorrect && (state.streak + 1) % 5 === 0
-							? Math.min(state.difficulty + 1, 10)
-							: state.difficulty;
-
-					setSelectedAnswer(null);
-					nextQuestion(newDifficulty);
-				},
-				isCorrect ? 100 : 250,
-			);
+				nextQuestion(newDifficulty);
+			}, delay);
 		},
-		[
-			question,
-			selectedAnswer,
-			state.difficulty,
-			state.streak,
-			state.lifelines.secondChance,
-			dispatch,
-			nextQuestion,
-			settings.hapticsEnabled,
-		],
+		[question, selectedAnswer, isTransitioning, state.lifelines.secondChance, state.difficulty, state.streak, dispatch, success, error, nextQuestion],
 	);
 
 	return {

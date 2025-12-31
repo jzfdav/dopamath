@@ -1,8 +1,7 @@
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import { BarChart3, HelpCircle, Settings as SettingsIcon } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/Button";
 import { TimeSelector } from "@/components/TimeSelector";
 import { InfoModal } from "@/components/InfoModal";
 
@@ -16,48 +15,72 @@ export const Home = () => {
 	);
 	const [isInfoOpen, setIsInfoOpen] = useState(false);
 
-	const handleUrgeKiller = () => {
+	const handleStart = () => {
 		navigate(`/game?mode=prime&minutes=${selectedTime}&content=${contentMode}`);
 	};
 
-	const handlePrimeSelect = (minutes: number) => {
-		setSelectedTime(minutes);
+	// Animation variants
+	const containerVariants: Variants = {
+		hidden: { opacity: 0 },
+		show: {
+			opacity: 1,
+			transition: {
+				staggerChildren: 0.1,
+				delayChildren: 0.2,
+			},
+		},
+	};
+
+	const itemVariants: Variants = {
+		hidden: { opacity: 0, y: 20 },
+		show: {
+			opacity: 1,
+			y: 0,
+			transition: {
+				type: "spring",
+				stiffness: 300,
+				damping: 24
+			}
+		},
 	};
 
 	return (
-		<motion.div
-			className="flex flex-col w-full h-full relative px-6 overflow-hidden"
-			initial={{ opacity: 0, x: -20 }}
-			animate={{ opacity: 1, x: 0 }}
-			exit={{ opacity: 0, x: 20 }}
-			transition={{ duration: 0.3 }}
-		>
-			<InfoModal isOpen={isInfoOpen} onClose={() => setIsInfoOpen(false)} />
+		<div className="flex flex-col min-h-[100dvh] relative overflow-hidden bg-background">
+			{/* Decorative background elements */}
+			<div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 blur-[120px] rounded-full pointer-events-none" />
+			<div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/10 blur-[120px] rounded-full pointer-events-none" />
 
-			{/* Hero Section */}
-			<div className="flex-1 flex flex-col items-center justify-center w-full z-10">
-				<motion.div
-					initial={{ scale: 0.9, opacity: 0 }}
-					animate={{ scale: 1, opacity: 1 }}
-					transition={{ duration: 0.5, type: "spring" }}
-					className="flex flex-col items-center"
-				>
-					<h1 className="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-primary to-secondary neon-text tracking-tighter mb-4 text-center leading-[0.9]">
-						DOPA
-						<br />
-						MATH
-					</h1>
-					<p className="text-text-dim text-xs uppercase tracking-[0.4em] opacity-60">
-						Dopamine Re-Engineered
+			<motion.div
+				className="flex-1 flex flex-col items-center justify-center p-6"
+				variants={containerVariants}
+				initial="hidden"
+				animate="show"
+			>
+				{/* Logo Section */}
+				<motion.div variants={itemVariants} className="text-center mb-12">
+					<motion.div
+						animate={{
+							y: [0, -10, 0],
+						}}
+						transition={{
+							duration: 4,
+							repeat: Infinity,
+							ease: "easeInOut",
+						}}
+						className="inline-block"
+					>
+						<h1 className="text-7xl font-black italic tracking-tighter text-white drop-shadow-neon select-none leading-none">
+							DOPA<br /><span className="text-primary">MATH</span>
+						</h1>
+					</motion.div>
+					<p className="text-text-dim mt-4 font-medium tracking-widest uppercase text-[10px] opacity-60">
+						Active Consumption • Earned Dopamine
 					</p>
 				</motion.div>
-			</div>
 
-			{/* Controls Section */}
-			<div className="flex-none flex flex-col justify-end gap-6 w-full z-20 pb-8 pt-2">
 				{/* Time Selection */}
-				<div className="flex flex-col gap-2">
-					<div className="flex items-center justify-center">
+				<motion.div variants={itemVariants} className="w-full max-w-xs mb-8">
+					<div className="flex justify-center mb-3">
 						<span className="text-[10px] text-primary/50 uppercase tracking-[0.2em] font-bold">
 							Session Duration
 						</span>
@@ -65,102 +88,82 @@ export const Home = () => {
 					<TimeSelector
 						options={SESSION_INTERVALS}
 						selected={selectedTime}
-						onSelect={handlePrimeSelect}
+						onSelect={setSelectedTime}
 					/>
-				</div>
+				</motion.div>
 
-				{/* Content Mode Selection */}
-				<div className="flex flex-col gap-3">
-					<div className="flex items-center justify-center">
-						<span className="text-[10px] text-secondary/50 uppercase tracking-[0.2em] font-bold">
-							Operation Mode
-						</span>
-					</div>
-
-					<div className="flex p-1 bg-white/5 rounded-2xl glass-panel relative overflow-hidden h-14">
-						<motion.div
-							className="absolute top-1 bottom-1 bg-white/10 rounded-xl"
-							initial={false}
-							animate={{
-								x: contentMode === "arithmetic" ? 0 : "100%",
-							}}
-							style={{ width: "calc(50% - 4px)", left: 4 }}
-							transition={{ type: "spring", stiffness: 300, damping: 30 }}
-						/>
+				{/* Mode Selection */}
+				<motion.div variants={itemVariants} className="w-full max-w-xs mb-12">
+					<div className="glass-panel p-1 rounded-2xl flex gap-1 h-14">
 						<button
 							type="button"
-							className={`flex-1 z-10 font-bold text-xs uppercase tracking-widest transition-colors ${contentMode === "arithmetic" ? "text-primary" : "text-text-dim"}`}
 							onClick={() => setContentMode("arithmetic")}
+							className={`flex-1 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${contentMode === "arithmetic"
+								? "bg-white text-black shadow-lg"
+								: "text-text-dim hover:text-white"
+								}`}
 						>
 							Arithmetic
 						</button>
 						<button
 							type="button"
-							className={`flex-1 z-10 font-bold text-xs uppercase tracking-widest transition-colors ${contentMode === "mixed" ? "text-secondary" : "text-text-dim"}`}
 							onClick={() => setContentMode("mixed")}
+							className={`flex-1 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${contentMode === "mixed"
+								? "bg-white text-black shadow-lg"
+								: "text-text-dim hover:text-white"
+								}`}
 						>
-							Mega-Mixed
+							Mixed
 						</button>
 					</div>
-				</div>
+				</motion.div>
 
-				{/* Navigation Cluster & Primary CTA */}
-				<div className="flex flex-col gap-4">
-					<div className="flex items-center gap-3">
-						<Button
-							variant="ghost"
-							size="sm"
-							onClick={() => setIsInfoOpen(true)}
-							className="flex-1 h-12 glass-panel rounded-xl flex items-center justify-center gap-2 text-text-dim/60 hover:text-primary transition-all active:scale-95"
-						>
-							<HelpCircle size={18} />
-							<span className="text-[10px] font-black uppercase tracking-widest">Info</span>
-						</Button>
-						<Button
-							variant="ghost"
-							size="sm"
+				{/* Main Action Section (Thumb Zone) */}
+				<motion.div variants={itemVariants} className="w-full max-w-sm flex flex-col items-center gap-8">
+					<div className="flex items-center gap-6">
+						<motion.button
+							whileHover={{ scale: 1.1, rotate: -5 }}
+							whileTap={{ scale: 0.9 }}
 							onClick={() => navigate("/stats")}
-							className="flex-1 h-12 glass-panel rounded-xl flex items-center justify-center gap-2 text-text-dim/60 hover:text-secondary transition-all active:scale-95"
+							className="p-4 glass-panel rounded-2xl text-text-dim hover:text-primary transition-colors hover:border-primary/30"
 						>
-							<BarChart3 size={18} />
-							<span className="text-[10px] font-black uppercase tracking-widest">Stats</span>
-						</Button>
-						<Button
-							variant="ghost"
-							size="sm"
+							<BarChart3 size={24} />
+						</motion.button>
+
+						<motion.button
+							whileHover={{
+								scale: 1.05,
+								boxShadow: "0 0 40px rgba(0, 255, 157, 0.4)"
+							}}
+							whileTap={{ scale: 0.95 }}
+							onClick={handleStart}
+							className="relative group bg-primary text-black font-black text-3xl italic tracking-tighter px-12 py-6 rounded-[2.5rem] shadow-[0_20px_40px_rgba(0,255,157,0.25)] transition-all overflow-hidden"
+						>
+							<div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+							ENGAGE
+						</motion.button>
+
+						<motion.button
+							whileHover={{ scale: 1.1, rotate: 5 }}
+							whileTap={{ scale: 0.9 }}
 							onClick={() => navigate("/settings")}
-							className="flex-1 h-12 glass-panel rounded-xl flex items-center justify-center gap-2 text-text-dim/60 hover:text-primary transition-all active:scale-95"
+							className="p-4 glass-panel rounded-2xl text-text-dim hover:text-primary transition-colors hover:border-primary/30"
 						>
-							<SettingsIcon size={18} />
-							<span className="text-[10px] font-black uppercase tracking-widest">Set</span>
-						</Button>
+							<SettingsIcon size={24} />
+						</motion.button>
 					</div>
 
-					<motion.div
-						initial={{ y: 20, opacity: 0 }}
-						animate={{ y: 0, opacity: 1 }}
-						transition={{
-							delay: 0.3,
-							type: "spring",
-							stiffness: 200,
-							damping: 20,
-						}}
+					<motion.button
+						type="button"
+						onClick={() => setIsInfoOpen(true)}
+						className="flex items-center gap-2 px-4 py-2 text-[10px] font-bold text-text-dim hover:text-white transition-colors uppercase tracking-[0.2em]"
 					>
-						<Button
-							variant="primary"
-							size="xl"
-							className="w-full h-20 text-xl shadow-[0_0_40px_rgba(0,255,157,0.4)] animate-pulse hover:animate-none flex items-center justify-center gap-4 text-black font-black tracking-widest"
-							onClick={handleUrgeKiller}
-						>
-							<span className="relative flex h-3 w-3">
-								<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-black opacity-75"></span>
-								<span className="relative inline-flex rounded-full h-3 w-3 bg-black"></span>
-							</span>
-							ENGAGE
-						</Button>
-					</motion.div>
-				</div>
-			</div>
-		</motion.div>
+						<HelpCircle size={14} /> Philosophy
+					</motion.button>
+				</motion.div>
+			</motion.div>
+
+			<InfoModal isOpen={isInfoOpen} onClose={() => setIsInfoOpen(false)} />
+		</div>
 	);
 };
