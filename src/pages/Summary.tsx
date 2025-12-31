@@ -49,7 +49,14 @@ export const Summary = () => {
 		});
 
 		hasSaved.current = true;
-	}, [state.score, state.mode, state.answersAttempted, state.status, navigate]);
+	}, [
+		state.score,
+		state.mode,
+		state.answersAttempted,
+		state.correctAnswers,
+		state.status,
+		navigate,
+	]);
 
 	const chartData = useMemo(() => {
 		return state.history.map((item, index) => ({
@@ -72,13 +79,13 @@ export const Summary = () => {
 
 	const handlePlayAgain = () => {
 		dispatch({ type: "END_GAME" });
-		
+
 		// Reconstruct search params to preserve settings
 		const params = new URLSearchParams();
 		params.set("mode", state.mode);
 		params.set("content", state.contentMode);
 		params.set("minutes", (state.totalTime / 60).toString());
-		
+
 		navigate(`/game?${params.toString()}`);
 	};
 

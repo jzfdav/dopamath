@@ -1,45 +1,50 @@
-import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/Button";
-import { Lifelines } from "@/components/Lifelines";
-import { useGameLogic } from "@/hooks/useGameLogic";
-import { VisualTimer } from "@/components/VisualTimer";
-import { ParticleBurst } from "@/components/ParticleBurst";
-import { useState, useEffect } from "react";
-import { LifelineModal, type LifelineInfo } from "@/components/LifelineModal";
+import { AnimatePresence, motion } from "framer-motion";
 import { Clock, Lightbulb, Shield, SkipForward, Zap } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/Button";
+import { type LifelineInfo, LifelineModal } from "@/components/LifelineModal";
+import { Lifelines } from "@/components/Lifelines";
+import { ParticleBurst } from "@/components/ParticleBurst";
+import { VisualTimer } from "@/components/VisualTimer";
+import { useGameLogic } from "@/hooks/useGameLogic";
 import { useLifelineManager } from "@/hooks/useLifelineManager";
 
 const LIFELINE_DATA: Record<string, LifelineInfo> = {
 	fiftyFifty: {
 		id: "fiftyFifty",
 		name: "50/50",
-		description: "Removes two incorrect answers, doubling your chances of success.",
-		icon: <Zap size={32} />
+		description:
+			"Removes two incorrect answers, doubling your chances of success.",
+		icon: <Zap size={32} />,
 	},
 	freezeTime: {
 		id: "freezeTime",
 		name: "Time Freeze",
-		description: "Halts the timer completely. Take your time to calculate the perfect answer.",
-		icon: <Clock size={32} />
+		description:
+			"Halts the timer completely. Take your time to calculate the perfect answer.",
+		icon: <Clock size={32} />,
 	},
 	simplify: {
 		id: "simplify",
 		name: "Simplify",
-		description: "Converts complex expressions into basic arithmetic for one turn.",
-		icon: <Lightbulb size={32} />
+		description:
+			"Converts complex expressions into basic arithmetic for one turn.",
+		icon: <Lightbulb size={32} />,
 	},
 	skip: {
 		id: "skip",
 		name: "Skip",
-		description: "Skips the current question without breaking your streak or losing points.",
-		icon: <SkipForward size={32} />
+		description:
+			"Skips the current question without breaking your streak or losing points.",
+		icon: <SkipForward size={32} />,
 	},
 	secondChance: {
 		id: "secondChance",
 		name: "Shield",
-		description: "A passive fallback. If you get an answer wrong, the shield breaks instead of your streak.",
-		icon: <Shield size={32} />
-	}
+		description:
+			"A passive fallback. If you get an answer wrong, the shield breaks instead of your streak.",
+		icon: <Shield size={32} />,
+	},
 };
 
 export const Game = () => {
@@ -70,7 +75,7 @@ export const Game = () => {
 		onFiftyFifty,
 		onSimplify,
 		onSkip,
-		onShield
+		onShield,
 	} = useLifelineManager({
 		state,
 		dispatch,
@@ -80,7 +85,7 @@ export const Game = () => {
 		setIsFrozen,
 		setIsSimplifyActive,
 		setDisabledOptions,
-		lifelineData: LIFELINE_DATA
+		lifelineData: LIFELINE_DATA,
 	});
 
 	// Detect correct/wrong answer for visual effects
@@ -107,7 +112,10 @@ export const Game = () => {
 			}}
 			transition={{ duration: shake ? 0.4 : 0.3 }}
 		>
-			<ParticleBurst active={showParticles} onComplete={() => setShowParticles(false)} />
+			<ParticleBurst
+				active={showParticles}
+				onComplete={() => setShowParticles(false)}
+			/>
 
 			<LifelineModal
 				isOpen={activeLifelineModal !== null}
@@ -165,7 +173,9 @@ export const Game = () => {
 					animate={{ scale: 1, opacity: 1, y: 0 }}
 					className="w-full text-center px-4"
 				>
-					<div className={`text-6xl font-black mb-12 tracking-tighter transition-all duration-300 ${isSimplifyActive ? "scale-110 drop-shadow-[0_0_30px_rgba(255,255,255,0.4)]" : "text-white"}`}>
+					<div
+						className={`text-6xl font-black mb-12 tracking-tighter transition-all duration-300 ${isSimplifyActive ? "scale-110 drop-shadow-[0_0_30px_rgba(255,255,255,0.4)]" : "text-white"}`}
+					>
 						{question.equation}
 						{isSimplifyActive && (
 							<motion.div
@@ -194,23 +204,25 @@ export const Game = () => {
 									animate={{
 										opacity: isDisabled ? 0.3 : 1,
 										scale: isSelected ? 1.05 : 1,
-										y: 0
+										y: 0,
 									}}
 									transition={{ delay: index * 0.05 }}
 								>
 									<Button
 										variant={
-											isSelected
-												? isCorrect
-													? "primary"
-													: "danger"
-												: "ghost"
+											isSelected ? (isCorrect ? "primary" : "danger") : "ghost"
 										}
 										size="lg"
 										hapticIntensity={null}
-										disabled={isDisabled || selectedAnswer !== null || state.status === "paused" || state.status === "finished"}
-										className={`w-full h-24 text-2xl font-black rounded-3xl transition-all ${isSelected ? "ring-4 ring-white/20" : "glass-panel"
-											} ${isDisabled ? "opacity-30 grayscale cursor-not-allowed" : ""}`}
+										disabled={
+											isDisabled ||
+											selectedAnswer !== null ||
+											state.status === "paused" ||
+											state.status === "finished"
+										}
+										className={`w-full h-24 text-2xl font-black rounded-3xl transition-all ${
+											isSelected ? "ring-4 ring-white/20" : "glass-panel"
+										} ${isDisabled ? "opacity-30 grayscale cursor-not-allowed" : ""}`}
 										onClick={() => handleAnswer(option)}
 									>
 										{option}

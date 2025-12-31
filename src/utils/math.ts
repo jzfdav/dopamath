@@ -111,10 +111,7 @@ export function generateEquation(
 	};
 }
 
-export function generateOptions(
-	correctAnswer: number,
-	count = 4,
-): number[] {
+export function generateOptions(correctAnswer: number, count = 4): number[] {
 	const options = new Set<number>();
 	options.add(correctAnswer);
 

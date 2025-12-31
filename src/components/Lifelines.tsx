@@ -37,7 +37,7 @@ export const Lifelines = ({
 				icon={<Shield size={16} />}
 				label="Shield"
 				available={state.lifelines.secondChance}
-				onClick={onShield || (() => { })}
+				onClick={onShield || (() => {})}
 			/>
 			<LifelineButton
 				icon={<Lightbulb size={16} />}
@@ -73,7 +73,9 @@ const LifelineButton = ({
 		onClick={onClick}
 		className={`flex-1 flex flex-col items-center gap-1 min-w-0 px-1 py-3 border border-white/5 rounded-xl ${!available ? "opacity-20 grayscale" : "hover:bg-white/10 active:scale-90"}`}
 	>
-		<div className={`${available ? "text-primary" : "text-text-dim"}`}>{icon}</div>
+		<div className={`${available ? "text-primary" : "text-text-dim"}`}>
+			{icon}
+		</div>
 		<span className="text-[9px] uppercase font-black tracking-tighter truncate w-full text-center">
 			{label}
 		</span>

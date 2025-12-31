@@ -1,4 +1,4 @@
-import { motion, type PanInfo, useMotionValue, animate } from "framer-motion";
+import { animate, motion, type PanInfo, useMotionValue } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { playTickSound, triggerHaptic } from "@/utils/audio";
 
@@ -33,9 +33,7 @@ export const TimeSelector = ({
 			const centerOffset = containerWidth / 2;
 			const selectedIndex = options.indexOf(selected) + offsetCount;
 			const initialX =
-				centerOffset -
-				selectedIndex * FULL_ITEM_WIDTH -
-				ITEM_WIDTH / 2;
+				centerOffset - selectedIndex * FULL_ITEM_WIDTH - ITEM_WIDTH / 2;
 			x.set(initialX);
 		}
 	}, [options, selected, x, offsetCount]);
@@ -45,13 +43,18 @@ export const TimeSelector = ({
 		// Determine targeted snap point considering momentum
 		const targetX = x.get() + info.velocity.x * 0.1;
 
-		const rawIndex = (centerOffset - ITEM_WIDTH / 2 - targetX) / FULL_ITEM_WIDTH;
+		const rawIndex =
+			(centerOffset - ITEM_WIDTH / 2 - targetX) / FULL_ITEM_WIDTH;
 		let snappedIndex = Math.round(rawIndex);
 
 		// Clamp to valid range of the triple-list
-		snappedIndex = Math.max(0, Math.min(snappedIndex, internalOptions.length - 1));
+		snappedIndex = Math.max(
+			0,
+			Math.min(snappedIndex, internalOptions.length - 1),
+		);
 
-		const finalX = centerOffset - snappedIndex * FULL_ITEM_WIDTH - ITEM_WIDTH / 2;
+		const finalX =
+			centerOffset - snappedIndex * FULL_ITEM_WIDTH - ITEM_WIDTH / 2;
 
 		// Animate to snap point
 		animate(x, finalX, {
@@ -61,14 +64,16 @@ export const TimeSelector = ({
 			onComplete: () => {
 				// Re-center for infinite loop if we're in the side sets
 				if (snappedIndex < offsetCount || snappedIndex >= offsetCount * 2) {
-					const adjustedIndex = snappedIndex < offsetCount
-						? snappedIndex + offsetCount
-						: snappedIndex - offsetCount;
+					const adjustedIndex =
+						snappedIndex < offsetCount
+							? snappedIndex + offsetCount
+							: snappedIndex - offsetCount;
 
-					const resetX = centerOffset - adjustedIndex * FULL_ITEM_WIDTH - ITEM_WIDTH / 2;
+					const resetX =
+						centerOffset - adjustedIndex * FULL_ITEM_WIDTH - ITEM_WIDTH / 2;
 					x.set(resetX);
 				}
-			}
+			},
 		});
 
 		const actualValue = internalOptions[snappedIndex];
@@ -99,6 +104,7 @@ export const TimeSelector = ({
 				onDragEnd={handleDragEnd}
 			>
 				{internalOptions.map((opt, i) => (
+					// biome-ignore lint/suspicious/noArrayIndexKey: Duplicate values required for infinite loop visual effect
 					<Item key={`${opt}-${i}`} value={opt} isSelected={opt === selected} />
 				))}
 			</motion.div>

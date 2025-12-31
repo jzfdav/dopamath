@@ -1,9 +1,9 @@
 import { motion, type Variants } from "framer-motion";
 import { BarChart3, HelpCircle, Settings as SettingsIcon } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { TimeSelector } from "@/components/TimeSelector";
 import { InfoModal } from "@/components/InfoModal";
+import { TimeSelector } from "@/components/TimeSelector";
 import { useSettings } from "@/context/SettingsContext";
 
 const SESSION_INTERVALS = [1, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29];
@@ -45,8 +45,8 @@ export const Home = () => {
 			transition: {
 				type: "spring",
 				stiffness: 300,
-				damping: 24
-			}
+				damping: 24,
+			},
 		},
 	};
 
@@ -63,7 +63,10 @@ export const Home = () => {
 				animate="show"
 			>
 				{/* Logo Section */}
-				<motion.div variants={itemVariants} className="text-center mb-6 sm:mb-12">
+				<motion.div
+					variants={itemVariants}
+					className="text-center mb-6 sm:mb-12"
+				>
 					<motion.div
 						animate={{
 							y: [0, -10, 0],
@@ -76,7 +79,9 @@ export const Home = () => {
 						className="inline-block"
 					>
 						<h1 className="text-6xl sm:text-7xl font-black italic tracking-tighter text-white drop-shadow-neon select-none leading-none">
-							DOPA<br /><span className="text-primary">MATH</span>
+							DOPA
+							<br />
+							<span className="text-primary">MATH</span>
 						</h1>
 					</motion.div>
 					<p className="text-text-dim mt-2 sm:mt-4 font-medium tracking-widest uppercase text-[10px] opacity-60">
@@ -85,7 +90,10 @@ export const Home = () => {
 				</motion.div>
 
 				{/* Time Selection */}
-				<motion.div variants={itemVariants} className="w-full max-w-xs mb-6 sm:mb-8">
+				<motion.div
+					variants={itemVariants}
+					className="w-full max-w-xs mb-6 sm:mb-8"
+				>
 					<div className="flex justify-center mb-2">
 						<span className="text-[10px] text-primary/50 uppercase tracking-[0.2em] font-bold">
 							Session Duration
@@ -99,25 +107,30 @@ export const Home = () => {
 				</motion.div>
 
 				{/* Mode Selection */}
-				<motion.div variants={itemVariants} className="w-full max-w-xs mb-8 sm:mb-12">
+				<motion.div
+					variants={itemVariants}
+					className="w-full max-w-xs mb-8 sm:mb-12"
+				>
 					<div className="glass-panel p-1 rounded-2xl flex gap-1 h-14">
 						<button
 							type="button"
 							onClick={() => setContentMode("arithmetic")}
-							className={`flex-1 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${contentMode === "arithmetic"
-								? "bg-white text-black shadow-lg"
-								: "text-text-dim hover:text-white"
-								}`}
+							className={`flex-1 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+								contentMode === "arithmetic"
+									? "bg-white text-black shadow-lg"
+									: "text-text-dim hover:text-white"
+							}`}
 						>
 							Arithmetic
 						</button>
 						<button
 							type="button"
 							onClick={() => setContentMode("mixed")}
-							className={`flex-1 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${contentMode === "mixed"
-								? "bg-white text-black shadow-lg"
-								: "text-text-dim hover:text-white"
-								}`}
+							className={`flex-1 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+								contentMode === "mixed"
+									? "bg-white text-black shadow-lg"
+									: "text-text-dim hover:text-white"
+							}`}
 						>
 							Mixed
 						</button>
@@ -125,7 +138,10 @@ export const Home = () => {
 				</motion.div>
 
 				{/* Main Action Section (Thumb Zone) */}
-				<motion.div variants={itemVariants} className="w-full max-w-sm flex flex-col items-center gap-4 sm:gap-6">
+				<motion.div
+					variants={itemVariants}
+					className="w-full max-w-sm flex flex-col items-center gap-4 sm:gap-6"
+				>
 					{/* Navigation Icons Row Above Engage button */}
 					<div className="flex items-center gap-6 mb-1 sm:mb-2">
 						<motion.button
@@ -160,7 +176,7 @@ export const Home = () => {
 					<motion.button
 						whileHover={{
 							scale: 1.05,
-							boxShadow: "0 0 40px rgba(0, 255, 157, 0.4)"
+							boxShadow: "0 0 40px rgba(0, 255, 157, 0.4)",
 						}}
 						whileTap={{ scale: 0.95 }}
 						onClick={handleStart}

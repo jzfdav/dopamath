@@ -1,4 +1,10 @@
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import {
+	createContext,
+	useCallback,
+	useContext,
+	useEffect,
+	useState,
+} from "react";
 import type { ContentMode } from "./GameContext";
 
 export type TimerStyle =
@@ -61,11 +67,11 @@ export const SettingsProvider = ({
 	}, []);
 
 	const updateDismissedTips = useCallback((tipId: string) => {
-		setSettings(prev => {
+		setSettings((prev) => {
 			if (prev.dismissedLifelineTips.includes(tipId)) return prev;
 			const next = {
 				...prev,
-				dismissedLifelineTips: [...prev.dismissedLifelineTips, tipId]
+				dismissedLifelineTips: [...prev.dismissedLifelineTips, tipId],
 			};
 			localStorage.setItem("dopamath_settings", JSON.stringify(next));
 			return next;
@@ -73,7 +79,9 @@ export const SettingsProvider = ({
 	}, []);
 
 	return (
-		<SettingsContext.Provider value={{ settings, updateSettings, updateDismissedTips }}>
+		<SettingsContext.Provider
+			value={{ settings, updateSettings, updateDismissedTips }}
+		>
 			{children}
 		</SettingsContext.Provider>
 	);

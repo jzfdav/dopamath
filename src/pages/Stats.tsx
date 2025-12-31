@@ -12,8 +12,8 @@ export const Stats = () => {
 	const avgAccuracy =
 		history.length > 0
 			? Math.round(
-				history.reduce((sum, h) => sum + h.accuracy, 0) / history.length,
-			)
+					history.reduce((sum, h) => sum + h.accuracy, 0) / history.length,
+				)
 			: 0;
 	const gamesPlayed = history.length;
 	const bestScore = history.reduce((max, h) => Math.max(max, h.score), 0);

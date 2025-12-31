@@ -26,12 +26,11 @@ describe("Math Utils", () => {
 			expect(true).toBe(true);
 		});
 
-
 		it("respects arithmetic mode", () => {
 			for (let i = 0; i < 20; i++) {
 				const q = generateEquation(5, "arithmetic");
 				expect(q.equation).toMatch(/[+-]/);
-				expect(q.equation).not.toMatch(/[*\/]/);
+				expect(q.equation).not.toMatch(/[*/]/);
 			}
 		});
 
@@ -39,7 +38,7 @@ describe("Math Utils", () => {
 			for (let i = 0; i < 20; i++) {
 				const q = generateEquation(2, "mixed");
 				expect(q.equation).toMatch(/[+-]/);
-				expect(q.equation).not.toMatch(/[*\/]/);
+				expect(q.equation).not.toMatch(/[*/]/);
 			}
 		});
 

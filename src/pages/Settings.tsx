@@ -2,8 +2,8 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Smartphone, Volume2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/Button";
-import { useSettings, type TimerStyle } from "@/context/SettingsContext";
 import { VisualTimer } from "@/components/VisualTimer";
+import { type TimerStyle, useSettings } from "@/context/SettingsContext";
 
 const TIMER_STYLES: { id: TimerStyle; label: string }[] = [
 	{ id: "digital", label: "Digital" },
@@ -53,7 +53,9 @@ export const Settings = () => {
 							description="Satisfying sounds for every answer"
 							active={settings.audioTicksEnabled}
 							onToggle={() =>
-								updateSettings({ audioTicksEnabled: !settings.audioTicksEnabled })
+								updateSettings({
+									audioTicksEnabled: !settings.audioTicksEnabled,
+								})
 							}
 						/>
 
@@ -77,11 +79,7 @@ export const Settings = () => {
 
 					{/* Preview Block */}
 					<div className="glass-panel w-full p-8 rounded-3xl flex flex-col items-center justify-center border-primary/20 bg-primary/5 min-h-[160px]">
-						<VisualTimer
-							timeLeft={42}
-							totalTime={60}
-							className="scale-125"
-						/>
+						<VisualTimer timeLeft={42} totalTime={60} className="scale-125" />
 						<span className="mt-6 text-[10px] uppercase font-black tracking-widest text-primary animate-pulse">
 							Live Preview
 						</span>
@@ -91,12 +89,14 @@ export const Settings = () => {
 					<div className="flex gap-2 overflow-x-auto pb-4 scrollbar-hide">
 						{TIMER_STYLES.map((style) => (
 							<button
+								type="button"
 								key={style.id}
 								onClick={() => updateSettings({ timerStyle: style.id })}
-								className={`flex-none px-6 py-4 rounded-2xl glass-panel border transition-all active:scale-95 ${settings.timerStyle === style.id
-									? "border-primary bg-primary/10 text-primary"
-									: "border-white/5 text-text-dim hover:border-white/20"
-									}`}
+								className={`flex-none px-6 py-4 rounded-2xl glass-panel border transition-all active:scale-95 ${
+									settings.timerStyle === style.id
+										? "border-primary bg-primary/10 text-primary"
+										: "border-white/5 text-text-dim hover:border-white/20"
+								}`}
 							>
 								<span className="text-xs font-bold uppercase tracking-wider whitespace-nowrap">
 									{style.label}
