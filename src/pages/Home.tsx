@@ -111,22 +111,22 @@ export const Home = () => {
 						stiffness: 200,
 						damping: 20,
 					}}
-					className="flex items-center gap-4"
+					className="flex items-center gap-3"
 				>
 					<Button
 						variant="ghost"
 						size="sm"
 						onClick={() => navigate("/stats")}
-						className="p-4 h-20 w-16 glass-panel rounded-2xl flex flex-col items-center justify-center text-text-dim/60 hover:text-secondary hover:border-secondary/30 transition-all active:scale-90"
+						className="p-2 h-20 w-14 glass-panel rounded-2xl flex flex-col items-center justify-center text-text-dim/60 hover:text-secondary hover:border-secondary/30 transition-all active:scale-90"
 					>
-						<BarChart3 size={24} />
+						<BarChart3 size={20} />
 						<span className="text-[8px] mt-1 font-bold uppercase tracking-tighter">Stats</span>
 					</Button>
 
 					<Button
 						variant="primary"
 						size="xl"
-						className="flex-1 h-20 text-2xl shadow-[0_0_30px_rgba(0,255,157,0.4)] animate-pulse hover:animate-none flex items-center justify-center gap-4 text-black font-black tracking-widest"
+						className="flex-1 h-20 text-xl shadow-[0_0_30px_rgba(0,255,157,0.4)] animate-pulse hover:animate-none flex items-center justify-center gap-3 text-black font-black tracking-wider px-0"
 						onClick={handleUrgeKiller}
 					>
 						<span className="relative flex h-3 w-3">
@@ -140,9 +140,9 @@ export const Home = () => {
 						variant="ghost"
 						size="sm"
 						onClick={() => navigate("/settings")}
-						className="p-4 h-20 w-16 glass-panel rounded-2xl flex flex-col items-center justify-center text-text-dim/60 hover:text-primary hover:border-primary/30 transition-all active:scale-90"
+						className="p-2 h-20 w-14 glass-panel rounded-2xl flex flex-col items-center justify-center text-text-dim/60 hover:text-primary hover:border-primary/30 transition-all active:scale-90"
 					>
-						<SettingsIcon size={24} />
+						<SettingsIcon size={20} />
 						<span className="text-[8px] mt-1 font-bold uppercase tracking-tighter">Set</span>
 					</Button>
 				</motion.div>
