@@ -26,6 +26,7 @@ describe("Math Utils", () => {
 			expect(true).toBe(true);
 		});
 
+
 		it("respects arithmetic mode", () => {
 			for (let i = 0; i < 20; i++) {
 				const q = generateEquation(5, "arithmetic");
@@ -34,16 +35,37 @@ describe("Math Utils", () => {
 			}
 		});
 
-		it("includes multiplication and division in mixed mode", () => {
-			let foundComplex = false;
-			for (let i = 0; i < 50; i++) {
+		it("does NOT include complex operations at low difficulty (1-3)", () => {
+			for (let i = 0; i < 20; i++) {
+				const q = generateEquation(2, "mixed");
+				expect(q.equation).toMatch(/[+-]/);
+				expect(q.equation).not.toMatch(/[*\/]/);
+			}
+		});
+
+		it("includes multiplication at mid difficulty (4-6)", () => {
+			let foundMult = false;
+			// check probability enough times
+			for (let i = 0; i < 100; i++) {
 				const q = generateEquation(5, "mixed");
-				if (q.equation.includes("*") || q.equation.includes("/")) {
-					foundComplex = true;
+				if (q.equation.includes("*")) {
+					foundMult = true;
 					break;
 				}
 			}
-			expect(foundComplex).toBe(true);
+			expect(foundMult).toBe(true);
+		});
+
+		it("includes all operations at high difficulty (7+)", () => {
+			let foundDiv = false;
+			for (let i = 0; i < 100; i++) {
+				const q = generateEquation(8, "mixed");
+				if (q.equation.includes("/")) {
+					foundDiv = true;
+					break;
+				}
+			}
+			expect(foundDiv).toBe(true);
 		});
 	});
 

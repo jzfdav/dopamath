@@ -41,20 +41,24 @@ export function generateEquation(
 	let operation: Operation = "+";
 	const r = Math.random();
 
+	// Determine operation based on difficulty and mode
 	if (contentMode === "arithmetic") {
 		operation = r > 0.5 ? "+" : "-";
 	} else {
-		if (difficulty <= 2) {
-			operation = r > 0.5 ? "+" : "-";
-		} else if (difficulty <= 5) {
+		// Progressive introduction of operations
+		if (difficulty <= 3) {
+			// Easy start: mostly +, some -
+			operation = r > 0.4 ? "+" : "-";
+		} else if (difficulty <= 6) {
+			// Mid level: introduce * but keep it simple
+			if (r < 0.4) operation = "+";
+			else if (r < 0.7) operation = "-";
+			else operation = "*";
+		} else {
+			// High level: all operations
 			if (r < 0.3) operation = "+";
 			else if (r < 0.6) operation = "-";
 			else if (r < 0.8) operation = "*";
-			else operation = "/";
-		} else {
-			if (r < 0.25) operation = "+";
-			else if (r < 0.5) operation = "-";
-			else if (r < 0.75) operation = "*";
 			else operation = "/";
 		}
 	}
@@ -62,22 +66,42 @@ export function generateEquation(
 	let a = 0;
 	let b = 0;
 
+	// Helper to scale range slowly
+	// Diff 1: max 10
+	// Diff 10: max 100+
+	const getRange = (mult: number = 10) => {
+		// Base range starts at 10, increases by ~2 per level early on, then faster
+		const base = 10;
+		const expansion = Math.max(0, difficulty - 1) * 3; // +3 range per level
+		return Math.floor((base + expansion) * (mult / 10)); // Adjust multiplier if needed
+	};
+
+	const maxVal = getRange();
+
 	switch (operation) {
 		case "+":
-			a = getRandomInt(1, 10 * difficulty);
-			b = getRandomInt(1, 10 * difficulty);
+			a = getRandomInt(0, maxVal);
+			b = getRandomInt(0, maxVal);
 			break;
 		case "-":
-			a = getRandomInt(5, 10 * difficulty);
-			b = getRandomInt(1, a);
+			a = getRandomInt(Math.floor(maxVal / 2), maxVal + 5);
+			b = getRandomInt(0, a);
 			break;
 		case "*":
-			a = getRandomInt(2, 2 + Math.floor(difficulty / 2));
-			b = getRandomInt(2, 10);
+			// Keep multiplication simpler than addition
+			// Diff 1-3: shouldn't hit here due to logic above
+			// Diff 4-6: small numbers (2-5) * (2-10)
+			// Diff 7+: larger
+			{
+				const limit = Math.floor(Math.sqrt(maxVal)) + 2;
+				a = getRandomInt(2, limit);
+				b = getRandomInt(2, 10 + Math.floor(difficulty / 2));
+			}
 			break;
 		case "/":
-			b = getRandomInt(2, 10);
-			a = b * getRandomInt(2, 2 + Math.floor(difficulty / 2));
+			// Division: Result should be within range
+			b = getRandomInt(2, 10); // Divisor
+			a = b * getRandomInt(2, 10 + Math.floor(difficulty / 2)); // Dividend
 			break;
 	}
 

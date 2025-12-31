@@ -70,6 +70,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
                 correctAnswers:
                     state.correctAnswers + (action.payload.isCorrect ? 1 : 0),
                 streak: action.payload.isCorrect ? state.streak + 1 : 0,
+                difficulty: action.payload.newDifficulty,
                 history: [...state.history, historyItem],
             };
         }

@@ -53,6 +53,7 @@ export type GameAction =
             correctAnswer: number;
             selectedAnswer: number;
             timestamp: number;
+            newDifficulty: number;
         };
     }
     | {

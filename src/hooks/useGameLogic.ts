@@ -118,6 +118,11 @@ export const useGameLogic = () => {
 					// Recovery path: treat as correct but with half points and slight delay
 					setTimeout(() => {
 						const points = Math.floor((GAME_CONFIG.BASE_POINTS / 2) * state.difficulty);
+
+
+						// In recovery, we don't change difficulty
+						const currentDifficulty = state.difficulty;
+
 						dispatch({
 							type: "ANSWER_QUESTION",
 							payload: {
@@ -128,15 +133,11 @@ export const useGameLogic = () => {
 								correctAnswer: question.answer,
 								selectedAnswer: answer,
 								timestamp: Date.now(),
+								newDifficulty: currentDifficulty,
 							},
 						});
 
-						// In recovery, we don't increment difficulty unless they were already due
-						const nextDiff = (state.streak + 1) % GAME_CONFIG.STREAK_DIFFICULTY_STEP === 0
-							? Math.min(state.difficulty + 1, GAME_CONFIG.MAX_DIFFICULTY)
-							: state.difficulty;
-
-						nextQuestion(nextDiff);
+						nextQuestion(currentDifficulty);
 					}, GAME_CONFIG.TRANSITION_DELAY_WRONG_MS);
 					return;
 				}
@@ -144,6 +145,30 @@ export const useGameLogic = () => {
 
 			const delay = isCorrect ? GAME_CONFIG.TRANSITION_DELAY_CORRECT_MS : GAME_CONFIG.TRANSITION_DELAY_WRONG_MS;
 			setTimeout(() => {
+
+
+				// Calculate new difficulty
+				let newDifficulty = state.difficulty;
+
+				if (isCorrect) {
+					// Increase difficulty every X correct answers
+					if ((state.streak + 1) % GAME_CONFIG.STREAK_DIFFICULTY_STEP === 0) {
+						newDifficulty = Math.min(state.difficulty + 1, GAME_CONFIG.MAX_DIFFICULTY);
+					}
+				} else {
+					// Decrease difficulty if we fail 2 in a row (current failure makes streak 0, but we can track consecutive failures if needed)
+					// For now, let's just be simple: if they fail, we don't drop immediately unless we want to be nice.
+					// Let's implement a simple "drop if difficulty > 1" logic on wrong answer to prevent getting stuck
+					// Actually, the plan said "decrement on repeated wrong answers". 
+					// Since tracking "consecutive wrong" isn't in state, we'll do a simpler version: 
+					// If difficulty > 1 and they get it wrong, we can be lenient next time.
+					// But let's stick to the plan: fair manner.
+					// If streak is already 0 (meaning previous was also wrong), decrement.
+					if (state.streak === 0 && state.difficulty > 1) {
+						newDifficulty = Math.max(1, state.difficulty - 1);
+					}
+				}
+
 				dispatch({
 					type: "ANSWER_QUESTION",
 					payload: {
@@ -154,13 +179,9 @@ export const useGameLogic = () => {
 						correctAnswer: question.answer,
 						selectedAnswer: answer,
 						timestamp: Date.now(),
+						newDifficulty,
 					},
 				});
-
-				const newDifficulty =
-					isCorrect && (state.streak + 1) % GAME_CONFIG.STREAK_DIFFICULTY_STEP === 0
-						? Math.min(state.difficulty + 1, GAME_CONFIG.MAX_DIFFICULTY)
-						: state.difficulty;
 
 				nextQuestion(newDifficulty);
 			}, delay);

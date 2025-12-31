@@ -71,15 +71,15 @@ export const Summary = () => {
 	};
 
 	const handlePlayAgain = () => {
-		dispatch({
-			type: "START_GAME",
-			payload: {
-				mode: state.mode,
-				contentMode: state.contentMode,
-				duration: state.totalTime / 60,
-			},
-		});
-		navigate("/game");
+		dispatch({ type: "END_GAME" });
+		
+		// Reconstruct search params to preserve settings
+		const params = new URLSearchParams();
+		params.set("mode", state.mode);
+		params.set("content", state.contentMode);
+		params.set("minutes", (state.totalTime / 60).toString());
+		
+		navigate(`/game?${params.toString()}`);
 	};
 
 	return (
