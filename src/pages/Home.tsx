@@ -89,16 +89,16 @@ export const Home = () => {
 					}}
 				>
 					<Button
-						variant="danger"
+						variant="primary"
 						size="xl"
-						className="w-full h-20 text-2xl shadow-[0_0_30px_rgba(255,0,85,0.4)] animate-pulse hover:animate-none flex items-center justify-center gap-4"
+						className="w-full h-20 text-2xl shadow-[0_0_30px_rgba(0,255,157,0.4)] animate-pulse hover:animate-none flex items-center justify-center gap-4 text-black font-black tracking-widest"
 						onClick={handleUrgeKiller}
 					>
 						<span className="relative flex h-3 w-3">
-							<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-							<span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+							<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-black opacity-75"></span>
+							<span className="relative inline-flex rounded-full h-3 w-3 bg-black"></span>
 						</span>
-						URGE KILLER
+						ENGAGE
 					</Button>
 				</motion.div>
 			</div>
