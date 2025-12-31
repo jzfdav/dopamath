@@ -1,18 +1,23 @@
 import { motion } from "framer-motion";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/Button";
+import { TimeSelector } from "@/components/TimeSelector";
 
 const PRIME_INTERVALS = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29];
 
 export const Home = () => {
 	const navigate = useNavigate();
+	const [selectedTime, setSelectedTime] = useState(2); // Default to 2 minutes
 
 	const handleUrgeKiller = () => {
-		navigate("/game?mode=blitz");
+		// Start game with selected time (Treat Urge Killer as "Start Selected")
+		navigate(`/game?mode=prime&minutes=${selectedTime}`);
 	};
 
 	const handlePrimeSelect = (minutes: number) => {
-		navigate(`/game?mode=prime&minutes=${minutes}`);
+		setSelectedTime(minutes);
+		// Don't navigate immediately on wheel select
 	};
 
 	return (
@@ -28,53 +33,32 @@ export const Home = () => {
 					transition={{ duration: 0.5, type: "spring" }}
 					className="flex flex-col items-center"
 				>
-					<h1 className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-br from-primary to-secondary neon-text tracking-tighter mb-2">
+					<h1 className="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-primary to-secondary neon-text tracking-tighter mb-4 text-center leading-[0.9]">
 						DOPA
 						<br />
 						MATH
 					</h1>
-					<p className="text-text-dim text-sm uppercase tracking-[0.3em] opacity-70">
+					<p className="text-text-dim text-xs uppercase tracking-[0.4em] opacity-60">
 						Dopamine Re-Engineered
 					</p>
 				</motion.div>
 			</div>
 
 			{/* Thumb Zone Section (Anchored to bottom) */}
-			<div className="flex-none flex flex-col justify-end gap-6 w-full z-20 pb-4 pt-4">
-				{/* Mode Toggles / Secondary Actions can go here if needed */}
-
-				<div className="flex flex-col gap-4">
-					<div className="flex items-center justify-center px-2">
-						<span className="text-[10px] text-text-dim uppercase tracking-[0.2em] font-bold opacity-60">
-							Select Impulse
+			<div className="flex-none flex flex-col justify-end gap-8 w-full z-20 pb-4 pt-4">
+				{/* Time Selector Wheel */}
+				<div className="flex flex-col gap-2">
+					<div className="flex items-center justify-center">
+						<span className="text-[10px] text-primary/50 uppercase tracking-[0.2em] font-bold">
+							Session Duration
 						</span>
 					</div>
 
-					<div className="grid grid-cols-5 gap-3">
-						{PRIME_INTERVALS.map((min, i) => (
-							<motion.div
-								key={min}
-								initial={{ opacity: 0, y: 50 }}
-								animate={{ opacity: 1, y: 0 }}
-								transition={{
-									delay: i * 0.05,
-									type: "spring",
-									stiffness: 300,
-									damping: 20,
-								}}
-							>
-								<Button
-									variant="glass"
-									className="w-full aspect-square flex flex-col items-center justify-center p-0 !rounded-xl group"
-									onClick={() => handlePrimeSelect(min)}
-								>
-									<span className="text-xl font-mono text-white group-hover:text-primary transition-colors">
-										{min}
-									</span>
-								</Button>
-							</motion.div>
-						))}
-					</div>
+					<TimeSelector
+						options={PRIME_INTERVALS}
+						selected={selectedTime} // We need state for this
+						onSelect={handlePrimeSelect}
+					/>
 				</div>
 
 				{/* Primary CTA */}
