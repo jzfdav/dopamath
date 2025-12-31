@@ -116,7 +116,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 			return { ...state, status: "playing" };
 
 		case "END_GAME":
-			return { ...state, status: "finished" };
+			return { ...state, status: "idle" };
 
 		case "TICK_TIMER":
 			if (state.timeLeft <= 0)

@@ -48,7 +48,7 @@ export const useGameLogic = () => {
 
 	// Init game
 	useEffect(() => {
-		if (state.status === "playing" || state.status === "paused") return;
+		if (state.status !== "idle") return;
 
 		const mode = (searchParams.get("mode") as GameMode) || "prime";
 		const contentMode = (searchParams.get("content") as ContentMode) || "mixed";
