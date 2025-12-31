@@ -63,7 +63,14 @@ export const VisualTimer = ({
     };
 
     return (
-        <div className="relative inline-block">
+        <motion.div
+            className="relative inline-block"
+            animate={pops.length > 0 ? {
+                scale: [1, 1.1, 1],
+                filter: ["brightness(1)", "brightness(1.5)", "brightness(1)"]
+            } : {}}
+            transition={{ duration: 0.3 }}
+        >
             {renderTimer()}
 
             <AnimatePresence>
@@ -79,6 +86,6 @@ export const VisualTimer = ({
                     </motion.span>
                 ))}
             </AnimatePresence>
-        </div>
+        </motion.div>
     );
 };
