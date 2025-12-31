@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Settings as SettingsIcon } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/Button";
@@ -28,6 +29,16 @@ export const Home = () => {
 			exit={{ opacity: 0, x: 20 }}
 			transition={{ duration: 0.3 }}
 		>
+			<div className="absolute top-safe right-4 z-50 pt-4">
+				<Button
+					variant="ghost"
+					size="sm"
+					onClick={() => navigate("/settings")}
+					className="p-2 h-auto text-text-dim/40 hover:text-primary transition-colors"
+				>
+					<SettingsIcon size={24} />
+				</Button>
+			</div>
 			{/* Hero Section (Takes remaining space) */}
 			<div className="flex-1 flex flex-col items-center justify-center w-full z-10">
 				<motion.div

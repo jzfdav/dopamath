@@ -18,6 +18,11 @@ const getAudioContext = () => {
 };
 
 export const playTickSound = () => {
+	// Check settings from localStorage for non-reactive utility
+	const saved = localStorage.getItem("dopamath_settings");
+	const settings = saved ? JSON.parse(saved) : { audioTicksEnabled: true };
+	if (!settings.audioTicksEnabled) return;
+
 	try {
 		const ctx = getAudioContext();
 		if (ctx.state === "suspended") {

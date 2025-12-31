@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useGame } from "@/context/GameContext";
+import { useSettings } from "@/context/SettingsContext";
 import { generateEquation, generateOptions } from "@/utils/math";
 
 export const useGameLogic = () => {
 	const [searchParams] = useSearchParams();
 	const navigate = useNavigate();
+	const { settings } = useSettings();
 	const { state, dispatch } = useGame();
 
 	const [question, setQuestion] = useState<{
@@ -70,11 +72,6 @@ export const useGameLogic = () => {
 	// No, START_GAME would dispatch again. That's a bug in the original logic if useEffect deps included isFrozen.
 	// Let's fix this: Only start game once. Timer runs independently.
 
-	// ... wait, the original code had `isFrozen` in the dependency array of the main useEffect.
-	// This implies that whenever `isFrozen` changed, `START_GAME` was called again!
-	// That resets the score! BUG FOUND.
-	// This refactor is critical.
-
 	const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
 
 	const handleAnswer = useCallback(
@@ -85,7 +82,7 @@ export const useGameLogic = () => {
 			const isCorrect = selected === question.answer;
 
 			// Haptic feedback logic
-			if (navigator.vibrate) {
+			if (settings.hapticsEnabled && navigator.vibrate) {
 				navigator.vibrate(isCorrect ? 5 : [50, 50, 50]);
 			}
 
@@ -124,6 +121,7 @@ export const useGameLogic = () => {
 			state.streak,
 			dispatch,
 			nextQuestion,
+			settings.hapticsEnabled,
 		],
 	);
 
