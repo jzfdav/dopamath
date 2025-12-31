@@ -42,7 +42,10 @@ export const SettingsProvider = ({
 	const [settings, setSettings] = useState<Settings>(() => {
 		try {
 			const saved = localStorage.getItem("dopamath_settings");
-			return saved ? JSON.parse(saved) : DEFAULT_SETTINGS;
+			if (!saved) return DEFAULT_SETTINGS;
+			const parsed = JSON.parse(saved);
+			// Merge with defaults to handle version upgrades/missing keys
+			return { ...DEFAULT_SETTINGS, ...parsed };
 		} catch (e) {
 			console.error("Failed to parse settings", e);
 			return DEFAULT_SETTINGS;

@@ -93,29 +93,35 @@ export const useGameLogic = () => {
 				success();
 			} else {
 				error();
-				// Handle Second Chance
 				if (state.lifelines.secondChance) {
 					dispatch({
 						type: "USE_LIFELINE",
 						payload: { name: "secondChance" },
 					});
 
-					// Maintain streak on second chance
+					// Recovery path: treat as correct but with half points and slight delay
 					setTimeout(() => {
+						const points = Math.floor(5 * state.difficulty);
 						dispatch({
 							type: "ANSWER_QUESTION",
 							payload: {
 								id: crypto.randomUUID(),
 								isCorrect: true,
-								points: Math.floor(5 * state.difficulty),
+								points,
 								equation: question.equation,
 								correctAnswer: question.answer,
 								selectedAnswer: answer,
 								timestamp: Date.now(),
 							},
 						});
-						nextQuestion(state.difficulty);
-					}, 300);
+
+						// In recovery, we don't increment difficulty unless they were already due
+						const nextDiff = (state.streak + 1) % 5 === 0
+							? Math.min(state.difficulty + 1, 10)
+							: state.difficulty;
+
+						nextQuestion(nextDiff);
+					}, 400);
 					return;
 				}
 			}
