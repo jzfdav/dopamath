@@ -44,6 +44,12 @@ export const saveGameResult = ({
 	};
 
 	history.push(entry);
+
+	// Limit history to last 500 entries to prevent storage overflow
+	if (history.length > 500) {
+		history.splice(0, history.length - 500);
+	}
+
 	localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
 	return entry;
 };

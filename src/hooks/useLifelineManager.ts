@@ -1,10 +1,10 @@
 import { useCallback, useState } from "react";
 import type { LifelineInfo } from "@/components/LifelineModal";
-import type { GameAction } from "@/context/game/types";
+import type { GameAction, GameState } from "@/context/game/types";
 import { useSettings } from "@/context/SettingsContext";
 
 export interface LifelineManagerProps {
-	state: any;
+	state: GameState;
 	dispatch: React.Dispatch<GameAction>;
 	question: { answer: number; equation: string } | null;
 	options: number[];
@@ -32,12 +32,12 @@ export const useLifelineManager = ({
 	const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
 
 	const triggerLifeline = useCallback(
-		(name: string, action: () => void) => {
-			if (!state.lifelines[name as keyof typeof state.lifelines]) return;
+		(name: keyof GameState["lifelines"], action: () => void) => {
+			if (!state.lifelines[name]) return;
 
 			// Check if tip is dismissed
 			if (settings.dismissedLifelineTips.includes(name)) {
-				dispatch({ type: "USE_LIFELINE", payload: { name: name as any } });
+				dispatch({ type: "USE_LIFELINE", payload: { name } });
 				action();
 			} else {
 				// Pause game and show modal
@@ -58,7 +58,9 @@ export const useLifelineManager = ({
 			if (activeLifelineModal) {
 				dispatch({
 					type: "USE_LIFELINE",
-					payload: { name: activeLifelineModal.id as any },
+					payload: {
+						name: activeLifelineModal.id as keyof GameState["lifelines"],
+					},
 				});
 			}
 

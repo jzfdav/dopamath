@@ -45,6 +45,7 @@ export const Summary = () => {
 			mode: state.mode,
 			correctAnswers: state.correctAnswers,
 			answersAttempted: state.answersAttempted,
+			duration: (state.totalTime - state.timeLeft) / 60,
 			timestamp: Date.now(),
 		});
 
@@ -55,6 +56,8 @@ export const Summary = () => {
 		state.answersAttempted,
 		state.correctAnswers,
 		state.status,
+		state.timeLeft,
+		state.totalTime,
 		navigate,
 	]);
 
