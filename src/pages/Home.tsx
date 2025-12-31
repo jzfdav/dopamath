@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/Button";
 import { TimeSelector } from "@/components/TimeSelector";
 
-const PRIME_INTERVALS = [1, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29];
+const SESSION_INTERVALS = [1, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29];
 
 export const Home = () => {
 	const navigate = useNavigate();
@@ -58,7 +58,7 @@ export const Home = () => {
 					</div>
 
 					<TimeSelector
-						options={PRIME_INTERVALS}
+						options={SESSION_INTERVALS}
 						selected={selectedTime} // We need state for this
 						onSelect={handlePrimeSelect}
 					/>

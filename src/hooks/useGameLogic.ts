@@ -75,15 +75,66 @@ export const useGameLogic = () => {
 	// That resets the score! BUG FOUND.
 	// This refactor is critical.
 
+	const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+
+	const handleAnswer = useCallback(
+		(selected: number) => {
+			if (!question || selectedAnswer !== null) return;
+
+			setSelectedAnswer(selected);
+			const isCorrect = selected === question.answer;
+
+			// Haptic feedback logic
+			if (navigator.vibrate) {
+				navigator.vibrate(isCorrect ? 5 : [50, 50, 50]);
+			}
+
+			// Update state immediately for stats/timer
+			dispatch({
+				type: "ANSWER_QUESTION",
+				payload: {
+					id: crypto.randomUUID(),
+					isCorrect,
+					points: isCorrect ? 10 * state.difficulty : 0,
+					equation: question.equation,
+					correctAnswer: question.answer,
+					selectedAnswer: selected,
+					timestamp: Date.now(),
+				},
+			});
+
+			// Delay the transition to next question to show feedback
+			setTimeout(() => {
+				const newDifficulty =
+					isCorrect && (state.streak + 1) % 5 === 0
+						? Math.min(state.difficulty + 1, 10)
+						: state.difficulty;
+
+				setSelectedAnswer(null);
+				nextQuestion(newDifficulty);
+			}, 600);
+		},
+		[
+			question,
+			selectedAnswer,
+			state.difficulty,
+			state.streak,
+			dispatch,
+			nextQuestion,
+		],
+	);
+
 	return {
 		state,
 		question,
 		options,
 		disabledOptions,
 		isFrozen,
+		selectedAnswer,
 		setIsFrozen,
 		setDisabledOptions,
 		nextQuestion,
+		handleAnswer,
 		dispatch,
 	};
 };

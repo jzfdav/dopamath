@@ -1,5 +1,4 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/Button";
 import { Lifelines } from "@/components/Lifelines";
 import { useGameLogic } from "@/hooks/useGameLogic";
@@ -10,19 +9,12 @@ export const Game = () => {
 		question,
 		options,
 		disabledOptions,
+		selectedAnswer,
 		setIsFrozen,
 		setDisabledOptions,
 		nextQuestion,
-		dispatch,
+		handleAnswer,
 	} = useGameLogic();
-	const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-	const isMounted = useRef(true);
-
-	useEffect(() => {
-		return () => {
-			isMounted.current = false;
-		};
-	}, []);
 
 	const handleFiftyFifty = () => {
 		if (!question) return;
@@ -39,47 +31,8 @@ export const Game = () => {
 	const handleFreeze = () => {
 		setIsFrozen(true);
 		setTimeout(() => {
-			if (isMounted.current) setIsFrozen(false);
+			setIsFrozen(false);
 		}, 10000); // 10s freeze
-	};
-
-	const handleAnswer = (selected: number) => {
-		if (!question || selectedAnswer !== null) return;
-
-		setSelectedAnswer(selected);
-		const isCorrect = selected === question.answer;
-
-		// Haptic feedback logic
-		if (navigator.vibrate) {
-			navigator.vibrate(isCorrect ? 5 : [50, 50, 50]);
-		}
-
-		// Update state immediately for stats/timer
-		dispatch({
-			type: "ANSWER_QUESTION",
-			payload: {
-				id: crypto.randomUUID(),
-				isCorrect,
-				points: isCorrect ? 10 * state.difficulty : 0,
-				equation: question.equation,
-				correctAnswer: question.answer,
-				selectedAnswer: selected,
-				timestamp: Date.now(),
-			},
-		});
-
-		// Delay the transition to next question to show feedback
-		setTimeout(() => {
-			if (!isMounted.current) return;
-
-			const newDifficulty =
-				isCorrect && (state.streak + 1) % 5 === 0
-					? Math.min(state.difficulty + 1, 10)
-					: state.difficulty;
-
-			setSelectedAnswer(null);
-			nextQuestion(newDifficulty);
-		}, 600);
 	};
 
 	if (!question) return null;

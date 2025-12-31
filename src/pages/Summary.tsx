@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { HomeIcon, RotateCcw, TrendingUp } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
 	Area,
@@ -20,12 +20,16 @@ export const Summary = () => {
 	const [bestScore, setBestScore] = useState(0);
 	const [isNewRecord, setIsNewRecord] = useState(false);
 
+	const hasSaved = useRef(false);
+
 	useEffect(() => {
 		if (state.status !== "finished") {
 			// If accessed directly without finishing game, redirect home
 			navigate("/");
 			return;
 		}
+
+		if (hasSaved.current) return;
 
 		const prevBest = getBestScore(state.mode);
 		setBestScore(prevBest);
@@ -42,6 +46,8 @@ export const Summary = () => {
 			timestamp: Date.now(),
 			answersAttempted: state.answersAttempted,
 		});
+
+		hasSaved.current = true;
 	}, [state.score, state.mode, state.answersAttempted, state.status, navigate]);
 
 	const chartData = useMemo(() => {

@@ -79,7 +79,7 @@ const initialState: GameState = {
 
 // --- Reducer ---
 
-function gameReducer(state: GameState, action: GameAction): GameState {
+export function gameReducer(state: GameState, action: GameAction): GameState {
 	switch (action.type) {
 		case "START_GAME":
 			return {
