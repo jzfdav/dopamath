@@ -1,62 +1,21 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useCallback, useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/Button";
 import { Lifelines } from "@/components/Lifelines";
-import { useGame } from "@/context/GameContext";
-import { generateEquation, generateOptions } from "@/utils/math";
+import { useGameLogic } from "@/hooks/useGameLogic";
 
 export const Game = () => {
-	const [searchParams] = useSearchParams();
-	const navigate = useNavigate();
-	const { state, dispatch } = useGame();
-
-	const [question, setQuestion] = useState<{
-		equation: string;
-		answer: number;
-	} | null>(null);
-	const [options, setOptions] = useState<number[]>([]);
-	const [disabledOptions, setDisabledOptions] = useState<number[]>([]);
-	const [isFrozen, setIsFrozen] = useState(false);
-
-	// Check for game over
-	useEffect(() => {
-		if (state.status === "finished") {
-			navigate("/summary"); // We will build this later
-		}
-	}, [state.status, navigate]);
-
-	const nextQuestion = useCallback((difficulty: number) => {
-		const q = generateEquation(difficulty);
-		setQuestion(q);
-		setOptions(generateOptions(q.answer));
-		setDisabledOptions([]); // Reset disabled
-		setIsFrozen(false); // Unfreeze if frozen (optional design choice, usually per Q or strict duration)
-	}, []);
-
-	// init game
-	useEffect(() => {
-		const mode = searchParams.get("mode") === "blitz" ? "blitz" : "prime";
-		const minutes = parseInt(searchParams.get("minutes") || "2", 10);
-
-		dispatch({
-			type: "START_GAME",
-			payload: {
-				mode,
-				duration: mode === "blitz" ? 1 : minutes, // 1 min for blitz, else prime
-			},
-		});
-
-		nextQuestion(1);
-
-		const timer = setInterval(() => {
-			if (!isFrozen) {
-				dispatch({ type: "TICK_TIMER" });
-			}
-		}, 1000);
-
-		return () => clearInterval(timer);
-	}, [searchParams, dispatch, nextQuestion, isFrozen]);
+	// Remove unused navigate
+	const {
+		state,
+		question,
+		options,
+		disabledOptions,
+		setIsFrozen,
+		setDisabledOptions,
+		nextQuestion,
+		dispatch,
+	} = useGameLogic();
+	// The hook handles navigation on finish, so we might not need it here unless for UI actions.
 
 	const handleFiftyFifty = () => {
 		if (!question) return;
@@ -90,11 +49,7 @@ export const Game = () => {
 			payload: { isCorrect, points: isCorrect ? 10 * state.difficulty : 0 },
 		});
 
-		// Progression logic (simple for now)
-		// If correct and streak is high, increase difficulty?
-		// For now just consistent difficulty based on something?
-		// Let's just keep it random scaling or based on score.
-		// Simplifying: Increase difficulty every 5 streak
+		// Difficulty scaling
 		const newDifficulty =
 			isCorrect && (state.streak + 1) % 5 === 0
 				? Math.min(state.difficulty + 1, 10)
@@ -106,10 +61,12 @@ export const Game = () => {
 	if (!question) return null;
 
 	return (
-		<div className="flex flex-col w-full h-full relative p-6 overflow-hidden">
-			{/* Background Texture */}
-			<div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none mix-blend-overlay"></div>
-
+		<motion.div
+			className="flex flex-col w-full h-full relative p-4 overflow-hidden"
+			initial={{ opacity: 0 }}
+			animate={{ opacity: 1 }}
+			exit={{ opacity: 0 }}
+		>
 			{/* Top Zone: Stats (Read-Only) */}
 			<div className="flex-none pt-safe w-full flex justify-between items-start z-10">
 				<div className="flex flex-col glass-panel px-4 py-2 rounded-xl">
@@ -191,6 +148,6 @@ export const Game = () => {
 					))}
 				</div>
 			</div>
-		</div>
+		</motion.div>
 	);
 };

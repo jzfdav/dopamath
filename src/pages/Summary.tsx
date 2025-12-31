@@ -1,7 +1,15 @@
 import { motion } from "framer-motion";
-import { Home as HomeIcon, RotateCcw } from "lucide-react";
-import { useEffect, useState } from "react";
+import { HomeIcon, RotateCcw, TrendingUp } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+	Area,
+	AreaChart,
+	ResponsiveContainer,
+	Tooltip,
+	XAxis,
+	YAxis,
+} from "recharts";
 import { Button } from "@/components/Button";
 import { useGame } from "@/context/GameContext";
 import { getBestScore, saveGameResult } from "@/utils/storage";
@@ -28,21 +36,28 @@ export const Summary = () => {
 		}
 
 		// Save Result
-		saveGameResult(
-			state.score,
-			state.mode,
-			state.answersAttempted,
-			0, // state.correctCount (Pending Context Update)
-			state.totalTime / 60,
-		);
-	}, [
-		state.score,
-		state.mode,
-		state.totalTime,
-		state.status,
-		state.answersAttempted,
-		navigate,
-	]);
+		saveGameResult({
+			score: state.score,
+			mode: state.mode,
+			timestamp: Date.now(),
+			answersAttempted: state.answersAttempted,
+		});
+	}, [state.score, state.mode, state.answersAttempted, state.status, navigate]);
+
+	const chartData = useMemo(() => {
+		let currentScore = 0;
+		return state.history.map((item, index) => {
+			if (item.isCorrect) {
+				currentScore += 10; // Simple plotting
+			}
+			return {
+				name: index + 1,
+				score: currentScore,
+			};
+		});
+	}, [state.history]);
+
+	if (state.status !== "finished") return null;
 
 	const accuracy =
 		state.answersAttempted > 0
@@ -50,13 +65,11 @@ export const Summary = () => {
 			: 0;
 
 	const handleHome = () => {
-		dispatch({ type: "END_GAME" }); // Functionally reset or just leave
+		dispatch({ type: "END_GAME" });
 		navigate("/");
 	};
 
 	const handlePlayAgain = () => {
-		// Replay same settings?
-		// Basic restart logic:
 		dispatch({
 			type: "START_GAME",
 			payload: { mode: state.mode, duration: state.totalTime / 60 },
@@ -64,14 +77,14 @@ export const Summary = () => {
 		navigate("/game");
 	};
 
-	if (state.status !== "finished") return null;
-
 	return (
-		<div className="flex flex-col w-full h-full relative p-6 overflow-hidden">
-			{/* Background Texture */}
-			<div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none mix-blend-overlay"></div>
-
-			{/* Top: Celebration */}
+		<motion.div
+			className="flex flex-col w-full h-full relative p-6 overflow-hidden"
+			initial={{ opacity: 0, scale: 0.95 }}
+			animate={{ opacity: 1, scale: 1 }}
+			exit={{ opacity: 0, scale: 1.05 }}
+			transition={{ duration: 0.4 }}
+		>
 			<motion.div
 				initial={{ scale: 0.8, opacity: 0 }}
 				animate={{ scale: 1, opacity: 1 }}
@@ -82,38 +95,24 @@ export const Summary = () => {
 				</span>
 
 				<div className="relative mb-12 flex flex-col items-center">
-					<h1 className="text-9xl font-black text-transparent bg-clip-text bg-gradient-to-br from-primary to-secondary filter drop-shadow-neon tracking-tighter">
+					<h1 className="text-9xl font-black text-transparent bg-clip-text bg-gradient-to-br from-primary to-secondary filter drop-shadow-neon tracking-tighter leading-none">
 						{state.score}
 					</h1>
 					{isNewRecord && (
 						<motion.div
 							initial={{ y: 20, opacity: 0, rotate: -10 }}
 							animate={{ y: 0, opacity: 1, rotate: 12 }}
-							className="absolute -top-8 -right-8 bg-secondary text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg border border-white/20"
+							className="absolute -top-8 -right-8 bg-secondary text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg border border-white/20 whitespace-nowrap"
 						>
 							NEW BEST!
 						</motion.div>
 					)}
 				</div>
 
-				<div className="grid grid-cols-2 gap-4 w-full max-w-xs">
-					<div className="flex flex-col items-center p-4 glass-panel rounded-2xl">
-						<span className="text-text-dim text-[10px] mb-1 uppercase tracking-wider">
-							Best Score
-						</span>
-						<span className="text-xl font-mono text-white">{bestScore}</span>
-					</div>
-					<div className="flex flex-col items-center p-4 glass-panel rounded-2xl">
-						<span className="text-text-dim text-[10px] mb-1 uppercase tracking-wider">
-							Total Qs
-						</span>
-						<span className="text-xl font-mono text-secondary">
-							{state.answersAttempted}
-						</span>
-					</div>
-					<div className="flex flex-col items-center p-4 glass-panel rounded-2xl col-span-2">
-						<span className="text-text-dim text-[10px] mb-1 uppercase tracking-wider">
-							Accuracy (Est.)
+				<div className="grid grid-cols-2 gap-4 w-full max-w-sm mb-8">
+					<div className="glass-panel p-4 rounded-2xl flex flex-col items-center">
+						<span className="text-[10px] text-text-dim uppercase tracking-widest font-bold mb-1">
+							Accuracy
 						</span>
 						<span
 							className={`text-xl font-mono ${accuracy > 80 ? "text-primary" : "text-white"}`}
@@ -121,18 +120,66 @@ export const Summary = () => {
 							{accuracy}%
 						</span>
 					</div>
+					<div className="glass-panel p-4 rounded-2xl flex flex-col items-center">
+						<span className="text-[10px] text-text-dim uppercase tracking-widest font-bold mb-1 opacity-60">
+							Best
+						</span>
+						<span className="text-xl font-mono text-white">{bestScore}</span>
+					</div>
 				</div>
+
+				{chartData.length > 0 && (
+					<div className="w-full max-w-sm h-40 glass-panel p-4 rounded-2xl mb-8 flex flex-col">
+						<div className="flex items-center gap-2 mb-2">
+							<TrendingUp size={14} className="text-primary" />
+							<span className="text-[10px] text-text-dim uppercase tracking-widest font-bold">
+								Session Trend
+							</span>
+						</div>
+						<div className="flex-1 w-full min-h-0">
+							<ResponsiveContainer width="100%" height="100%">
+								<AreaChart data={chartData}>
+									<defs>
+										<linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
+											<stop offset="5%" stopColor="#00ff9d" stopOpacity={0.3} />
+											<stop offset="95%" stopColor="#00ff9d" stopOpacity={0} />
+										</linearGradient>
+									</defs>
+									<XAxis dataKey="name" hide />
+									<YAxis hide domain={[0, "auto"]} />
+									<Tooltip
+										contentStyle={{
+											backgroundColor: "rgba(0,0,0,0.8)",
+											border: "1px solid rgba(0,255,157,0.2)",
+											borderRadius: "8px",
+											fontSize: "12px",
+										}}
+										itemStyle={{ color: "#00ff9d" }}
+									/>
+									<Area
+										type="monotone"
+										dataKey="score"
+										stroke="#00ff9d"
+										fillOpacity={1}
+										fill="url(#colorScore)"
+										strokeWidth={2}
+										dot={false}
+									/>
+								</AreaChart>
+							</ResponsiveContainer>
+						</div>
+					</div>
+				)}
 			</motion.div>
 
-			{/* Bottom: Actions */}
-			<div className="flex-none w-full flex flex-col gap-3 z-20 pb-safe">
+			<div className="flex-none w-full max-w-sm mx-auto flex flex-col gap-3 z-20 pb-safe">
 				<Button
 					variant="neon"
 					size="xl"
 					onClick={handlePlayAgain}
-					className="w-full flex items-center justify-center gap-3 h-16 text-lg"
+					className="w-full flex items-center justify-center gap-3 h-14 text-lg"
 				>
-					<RotateCcw size={20} />
+					<RotateCcw size={18} />
 					Play Again
 				</Button>
 				<Button
@@ -140,10 +187,10 @@ export const Summary = () => {
 					onClick={handleHome}
 					className="w-full flex items-center justify-center gap-2 text-text-dim hover:text-white"
 				>
-					<HomeIcon size={18} />
+					<HomeIcon size={16} />
 					Return Home
 				</Button>
 			</div>
-		</div>
+		</motion.div>
 	);
 };

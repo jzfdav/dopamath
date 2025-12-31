@@ -10,21 +10,40 @@ export interface HistoryEntry {
 	accuracy: number;
 }
 
-export const saveGameResult = (
-	score: number,
-	mode: GameMode,
-	totalQuestions: number,
-	correctQuestions: number,
-	duration: number,
-) => {
+export interface HistoryEntry {
+	date: number;
+	mode: GameMode;
+	score: number;
+	duration: number; // minutes
+	accuracy: number;
+}
+
+interface SaveResultParams {
+	score: number;
+	mode: GameMode;
+	answersAttempted: number;
+	duration?: number;
+	timestamp?: number;
+}
+
+export const saveGameResult = ({
+	score,
+	mode,
+	answersAttempted,
+	duration = 0,
+	timestamp = Date.now(),
+}: SaveResultParams) => {
 	const history = getHistory();
+	// Assuming 10 points per correct answer for accuracy calculation if correctCount not stored
 	const entry: HistoryEntry = {
-		date: Date.now(),
+		date: timestamp,
 		mode,
 		score,
 		duration,
 		accuracy:
-			totalQuestions > 0 ? (correctQuestions / totalQuestions) * 100 : 0,
+			answersAttempted > 0
+				? Math.round((score / (answersAttempted * 10)) * 100)
+				: 0,
 	};
 
 	history.push(entry);

@@ -21,10 +21,13 @@ export const Home = () => {
 	};
 
 	return (
-		<div className="flex flex-col w-full h-full relative px-6 overflow-hidden">
-			{/* Background Texture */}
-			<div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none mix-blend-overlay"></div>
-
+		<motion.div
+			className="flex flex-col w-full h-full relative px-6 overflow-hidden"
+			initial={{ opacity: 0, x: -20 }}
+			animate={{ opacity: 1, x: 0 }}
+			exit={{ opacity: 0, x: 20 }}
+			transition={{ duration: 0.3 }}
+		>
 			{/* Hero Section (Takes remaining space) */}
 			<div className="flex-1 flex flex-col items-center justify-center w-full z-10">
 				<motion.div
@@ -86,6 +89,6 @@ export const Home = () => {
 					</Button>
 				</motion.div>
 			</div>
-		</div>
+		</motion.div>
 	);
 };

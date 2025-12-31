@@ -35,7 +35,7 @@ export const TimeSelector = ({
 		}
 	}, [options, selected, x]); // Removed unnecessary dependencies
 
-	const handleDragEnd = (_: any, info: PanInfo) => {
+	const handleDragEnd = (_: unknown, info: PanInfo) => {
 		const centerOffset = width / 2;
 		// x = center - index * (w+s) - w/2
 
@@ -94,7 +94,12 @@ export const TimeSelector = ({
 	);
 };
 
-const Item = ({ value, isSelected }: any) => {
+interface ItemProps {
+	value: number;
+	isSelected: boolean;
+}
+
+const Item = ({ value, isSelected }: ItemProps) => {
 	// Calculate distance from center to scale/fade
 	// Real X position relative to container center
 	// We can't easily transform inside child based on parent motion value without passing it down.

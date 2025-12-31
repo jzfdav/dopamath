@@ -11,6 +11,14 @@ const getRandomInt = (min: number, max: number) => {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
+export const isPrime = (num: number): boolean => {
+	if (num <= 1) return false;
+	for (let i = 2; i <= Math.sqrt(num); i++) {
+		if (num % i === 0) return false;
+	}
+	return true;
+};
+
 export const generateEquation = (difficulty: number): Question => {
 	// Difficulty scales from 1 (simple) to 10 (expert)
 	// Level 1-2: Addition/Subtraction single/double digits
