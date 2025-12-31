@@ -3,13 +3,13 @@ import { twMerge } from "tailwind-merge";
 
 interface ButtonProps extends HTMLMotionProps<"button"> {
 	variant?:
-	| "primary"
-	| "secondary"
-	| "danger"
-	| "ghost"
-	| "outline"
-	| "neon"
-	| "glass";
+		| "primary"
+		| "secondary"
+		| "danger"
+		| "ghost"
+		| "outline"
+		| "neon"
+		| "glass";
 	size?: "sm" | "md" | "lg" | "xl";
 	className?: string;
 }

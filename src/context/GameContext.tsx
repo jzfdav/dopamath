@@ -9,6 +9,7 @@ export interface GameState {
 	status: GameStatus;
 	mode: GameMode;
 	score: number;
+	answersAttempted: number; // For accuracy
 	streak: number;
 	timeLeft: number; // in seconds
 	totalTime: number; // initial time in seconds
@@ -48,6 +49,7 @@ const initialState: GameState = {
 	status: "idle",
 	mode: "prime",
 	score: 0,
+	answersAttempted: 0,
 	streak: 0,
 	timeLeft: 0,
 	totalTime: 0,
@@ -92,6 +94,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
 				...state,
 				score:
 					state.score + (action.payload.isCorrect ? action.payload.points : 0),
+				answersAttempted: state.answersAttempted + 1,
 				streak: action.payload.isCorrect ? state.streak + 1 : 0,
 			};
 

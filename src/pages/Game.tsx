@@ -106,73 +106,90 @@ export const Game = () => {
 	if (!question) return null;
 
 	return (
-		<div className="flex flex-col items-center justify-between w-full h-full p-4 max-w-md mx-auto relative overflow-hidden">
-			{/* HUD */}
-			<div className="w-full flex justify-between items-end mb-8 pt-4">
-				<div className="flex flex-col">
-					<span className="text-xs text-white/50 uppercase tracking-widest">
+		<div className="flex flex-col w-full h-full relative p-6 overflow-hidden">
+			{/* Background Texture */}
+			<div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none mix-blend-overlay"></div>
+
+			{/* Top Zone: Stats (Read-Only) */}
+			<div className="flex-none pt-safe w-full flex justify-between items-start z-10">
+				<div className="flex flex-col glass-panel px-4 py-2 rounded-xl">
+					<span className="text-[10px] text-text-dim uppercase tracking-widest font-bold">
 						Score
 					</span>
-					<span className="text-2xl font-mono text-primary">{state.score}</span>
+					<span className="text-xl font-mono text-primary text-shadow-neon">
+						{state.score}
+					</span>
 				</div>
 
-				<div className="flex flex-col items-center">
-					{/* Timer Pulse Effect */}
-					<motion.div
-						animate={{ scale: state.timeLeft < 10 ? [1, 1.1, 1] : 1 }}
-						transition={{ repeat: Infinity, duration: 1 }}
-						className={`text-4xl font-mono font-bold ${state.timeLeft < 10 ? "text-error" : "text-white"}`}
-					>
-						{Math.floor(state.timeLeft / 60)}:
-						{(state.timeLeft % 60).toString().padStart(2, "0")}
-					</motion.div>
-				</div>
+				{/* Floating Timer */}
+				<motion.div
+					animate={{
+						scale: state.timeLeft < 10 ? [1, 1.2, 1] : 1,
+						textShadow:
+							state.timeLeft < 10 ? "0 0 20px rgba(255, 0, 85, 0.8)" : "none",
+					}}
+					transition={{
+						repeat: Infinity,
+						duration: state.timeLeft < 10 ? 0.5 : 1,
+					}}
+					className={`text-3xl font-mono font-bold tracking-tight ${state.timeLeft < 10 ? "text-error" : "text-white"}`}
+				>
+					{Math.floor(state.timeLeft / 60)}:
+					{(state.timeLeft % 60).toString().padStart(2, "0")}
+				</motion.div>
 
-				<div className="flex flex-col items-end">
-					<span className="text-xs text-white/50 uppercase tracking-widest">
+				<div className="flex flex-col items-end glass-panel px-4 py-2 rounded-xl">
+					<span className="text-[10px] text-text-dim uppercase tracking-widest font-bold">
 						Streak
 					</span>
-					<span className="text-2xl font-mono text-secondary">
+					<span className="text-xl font-mono text-secondary text-shadow-neon">
 						{state.streak}
 					</span>
 				</div>
 			</div>
 
-			{/* Equation */}
-			<div className="flex-1 flex flex-col items-center justify-center w-full mb-8">
+			{/* Middle Zone: The Equation (Visual Focus) */}
+			<div className="flex-1 flex flex-col items-center justify-center w-full z-10 my-4">
 				<AnimatePresence mode="wait">
 					<motion.div
-						key={question.equation} // Trigger animation on new question
-						initial={{ opacity: 0, y: 20, scale: 0.9 }}
-						animate={{ opacity: 1, y: 0, scale: 1 }}
-						exit={{ opacity: 0, y: -20, scale: 1.1 }}
-						className="text-6xl font-black text-white tracking-tight"
+						key={question.equation}
+						initial={{ opacity: 0, scale: 0.5, y: 50 }}
+						animate={{ opacity: 1, scale: 1, y: 0 }}
+						exit={{ opacity: 0, scale: 1.5, filter: "blur(10px)" }}
+						transition={{ type: "spring", stiffness: 300, damping: 20 }}
+						className="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-white/80 drop-shadow-2xl tracking-tighter text-center"
 					>
 						{question.equation}
 					</motion.div>
 				</AnimatePresence>
 			</div>
 
-			<Lifelines
-				onFiftyFifty={handleFiftyFifty}
-				onSkip={handleSkip}
-				onFreeze={handleFreeze}
-			/>
+			{/* Bottom Zone: Controls (Thumb Zone) */}
+			<div className="flex-none w-full flex flex-col gap-6 z-20 pb-safe">
+				{/* Lifelines Bar */}
+				<div className="flex justify-center w-full">
+					<Lifelines
+						onFiftyFifty={handleFiftyFifty}
+						onSkip={handleSkip}
+						onFreeze={handleFreeze}
+					/>
+				</div>
 
-			{/* Inputs */}
-			<div className="w-full grid grid-cols-2 gap-4 pb-8">
-				{options.map((opt, i) => (
-					<Button
-						key={`${question.equation}-${opt}-${i}`}
-						variant="outline"
-						size="xl"
-						disabled={disabledOptions.includes(opt)}
-						className="h-24 text-4xl border-white/10 bg-white/5 active:bg-white/20 disabled:opacity-10 disabled:pointer-events-none"
-						onClick={() => handleAnswer(opt)}
-					>
-						{opt}
-					</Button>
-				))}
+				{/* Answer Grid */}
+				<div className="grid grid-cols-2 gap-3 w-full h-64">
+					{options.map((opt, i) => (
+						<Button
+							key={`${question.equation}-${opt}-${i}`}
+							variant="glass"
+							size="xl"
+							disabled={disabledOptions.includes(opt)}
+							className={`h-full text-4xl font-mono transition-all active:scale-95 ${disabledOptions.includes(opt) ? "opacity-20 blur-sm" : "hover:bg-white/10 hover:border-primary/50"}`}
+							onClick={() => handleAnswer(opt)}
+						>
+							{opt}
+						</Button>
+					))}
+				</div>
 			</div>
 		</div>
 	);
