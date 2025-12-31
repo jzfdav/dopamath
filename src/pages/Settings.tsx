@@ -2,7 +2,18 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Smartphone, Volume2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/Button";
-import { useSettings } from "@/context/SettingsContext";
+import { useSettings, type TimerStyle } from "@/context/SettingsContext";
+import { VisualTimer } from "@/components/VisualTimer";
+
+const TIMER_STYLES: { id: TimerStyle; label: string }[] = [
+	{ id: "digital", label: "Digital" },
+	{ id: "hourglass", label: "Hourglass" },
+	{ id: "analogue", label: "Sweep" },
+	{ id: "ring", label: "Neon Ring" },
+	{ id: "glitch", label: "Glitch" },
+	{ id: "fuse", label: "Fuse" },
+	{ id: "melting", label: "Melting" },
+];
 
 export const Settings = () => {
 	const navigate = useNavigate();
@@ -15,7 +26,7 @@ export const Settings = () => {
 			animate={{ opacity: 1, x: 0 }}
 			exit={{ opacity: 0, x: -20 }}
 		>
-			<header className="flex items-center gap-4 mb-12 pt-safe">
+			<header className="flex items-center gap-4 mb-8 pt-safe">
 				<Button
 					variant="ghost"
 					size="sm"
@@ -29,26 +40,71 @@ export const Settings = () => {
 				</h1>
 			</header>
 
-			<div className="flex-1 flex flex-col gap-4">
-				<SettingToggle
-					icon={<Volume2 size={20} />}
-					label="Audio Ticks"
-					description="Satisfying sounds for every answer"
-					active={settings.audioTicksEnabled}
-					onToggle={() =>
-						updateSettings({ audioTicksEnabled: !settings.audioTicksEnabled })
-					}
-				/>
+			<div className="flex-1 overflow-y-auto pr-2 space-y-8 scrollbar-hide">
+				{/* Audio/Haptics Section */}
+				<section className="space-y-4">
+					<h2 className="text-[10px] uppercase tracking-[0.3em] text-text-dim/60 font-bold px-2">
+						System Feedback
+					</h2>
+					<div className="flex flex-col gap-3">
+						<SettingToggle
+							icon={<Volume2 size={20} />}
+							label="Audio Ticks"
+							description="Satisfying sounds for every answer"
+							active={settings.audioTicksEnabled}
+							onToggle={() =>
+								updateSettings({ audioTicksEnabled: !settings.audioTicksEnabled })
+							}
+						/>
 
-				<SettingToggle
-					icon={<Smartphone size={20} />}
-					label="Haptic Feedback"
-					description="Subtle vibrations on interaction"
-					active={settings.hapticsEnabled}
-					onToggle={() =>
-						updateSettings({ hapticsEnabled: !settings.hapticsEnabled })
-					}
-				/>
+						<SettingToggle
+							icon={<Smartphone size={20} />}
+							label="Haptic Feedback"
+							description="Subtle vibrations on interaction"
+							active={settings.hapticsEnabled}
+							onToggle={() =>
+								updateSettings({ hapticsEnabled: !settings.hapticsEnabled })
+							}
+						/>
+					</div>
+				</section>
+
+				{/* Timer Visuals Section */}
+				<section className="space-y-4">
+					<h2 className="text-[10px] uppercase tracking-[0.3em] text-text-dim/60 font-bold px-2">
+						Timer Visuals
+					</h2>
+
+					{/* Preview Block */}
+					<div className="glass-panel w-full p-8 rounded-3xl flex flex-col items-center justify-center border-primary/20 bg-primary/5 min-h-[160px]">
+						<VisualTimer
+							timeLeft={42}
+							totalTime={60}
+							className="scale-125"
+						/>
+						<span className="mt-6 text-[10px] uppercase font-black tracking-widest text-primary animate-pulse">
+							Live Preview
+						</span>
+					</div>
+
+					{/* Style Selector */}
+					<div className="flex gap-2 overflow-x-auto pb-4 scrollbar-hide">
+						{TIMER_STYLES.map((style) => (
+							<button
+								key={style.id}
+								onClick={() => updateSettings({ timerStyle: style.id })}
+								className={`flex-none px-6 py-4 rounded-2xl glass-panel border transition-all active:scale-95 ${settings.timerStyle === style.id
+									? "border-primary bg-primary/10 text-primary"
+									: "border-white/5 text-text-dim hover:border-white/20"
+									}`}
+							>
+								<span className="text-xs font-bold uppercase tracking-wider whitespace-nowrap">
+									{style.label}
+								</span>
+							</button>
+						))}
+					</div>
+				</section>
 			</div>
 
 			<footer className="mt-auto pb-safe flex flex-col items-center">

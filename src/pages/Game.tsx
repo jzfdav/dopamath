@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/Button";
 import { Lifelines } from "@/components/Lifelines";
 import { useGameLogic } from "@/hooks/useGameLogic";
+import { VisualTimer } from "@/components/VisualTimer";
 
 export const Game = () => {
 	const {
@@ -61,22 +62,12 @@ export const Game = () => {
 					</span>
 				</div>
 
-				{/* Floating Timer */}
-				<motion.div
-					animate={{
-						scale: state.timeLeft < 10 ? [1, 1.2, 1] : 1,
-						textShadow:
-							state.timeLeft < 10 ? "0 0 20px rgba(255, 0, 85, 0.8)" : "none",
-					}}
-					transition={{
-						repeat: Infinity,
-						duration: state.timeLeft < 10 ? 0.5 : 1,
-					}}
-					className={`text-3xl font-mono font-bold tracking-tight ${state.timeLeft < 10 ? "text-error" : "text-white"}`}
-				>
-					{Math.floor(state.timeLeft / 60)}:
-					{(state.timeLeft % 60).toString().padStart(2, "0")}
-				</motion.div>
+				{/* Dynamic Visual Timer */}
+				<VisualTimer
+					timeLeft={state.timeLeft}
+					totalTime={state.totalTime}
+					isFrozen={setIsFrozen === undefined ? false : state.timeLeft === state.timeLeft}
+				/>
 
 				<div className="flex flex-col items-end glass-panel px-4 py-2 rounded-xl">
 					<span className="text-[10px] text-text-dim uppercase tracking-widest font-bold">

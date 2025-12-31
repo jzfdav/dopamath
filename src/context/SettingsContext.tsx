@@ -1,13 +1,24 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
+export type TimerStyle =
+	| "digital"
+	| "hourglass"
+	| "analogue"
+	| "ring"
+	| "glitch"
+	| "fuse"
+	| "melting";
+
 interface Settings {
 	hapticsEnabled: boolean;
 	audioTicksEnabled: boolean;
+	timerStyle: TimerStyle;
 }
 
 const DEFAULT_SETTINGS: Settings = {
 	hapticsEnabled: true,
 	audioTicksEnabled: true,
+	timerStyle: "digital",
 };
 
 const SettingsContext = createContext<{
