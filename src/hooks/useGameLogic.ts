@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useGame } from "@/context/GameContext";
+import {
+	type ContentMode,
+	type GameMode,
+	useGame,
+} from "@/context/GameContext";
 import { useSettings } from "@/context/SettingsContext";
 import { generateEquation, generateOptions } from "@/utils/math";
 
@@ -17,6 +21,8 @@ export const useGameLogic = () => {
 	const [options, setOptions] = useState<number[]>([]);
 	const [disabledOptions, setDisabledOptions] = useState<number[]>([]);
 	const [isFrozen, setIsFrozen] = useState(false);
+	const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+	const [isSimplifyActive, setIsSimplifyActive] = useState(false);
 
 	// Check for game over
 	useEffect(() => {
@@ -25,34 +31,42 @@ export const useGameLogic = () => {
 		}
 	}, [state.status, navigate]);
 
-	const nextQuestion = useCallback((difficulty: number) => {
-		const q = generateEquation(difficulty);
-		setQuestion(q);
-		setOptions(generateOptions(q.answer));
-		setDisabledOptions([]);
-		setIsFrozen(false);
-	}, []);
+	const nextQuestion = useCallback(
+		(difficulty: number) => {
+			const newQuestion = generateEquation(difficulty, state.contentMode);
+			setQuestion(newQuestion);
+			setOptions(generateOptions(newQuestion.answer));
+			setDisabledOptions([]);
+			setIsFrozen(false);
+			setIsSimplifyActive(false);
+		},
+		[state.contentMode],
+	);
 
-	// Init game (Runs once on mount/params change)
+	// Init game
 	useEffect(() => {
-		// Guard: Don't restart if already playing or paused
 		if (state.status === "playing" || state.status === "paused") return;
 
-		const mode = searchParams.get("mode") === "blitz" ? "blitz" : "prime";
-		const minutes = parseInt(searchParams.get("minutes") || "1", 10); // Match new default
+		const mode = (searchParams.get("mode") as GameMode) || "prime";
+		const contentMode = (searchParams.get("content") as ContentMode) || "mixed";
+		const minutes = Number(searchParams.get("minutes")) || 1;
 
 		dispatch({
 			type: "START_GAME",
 			payload: {
 				mode,
-				duration: mode === "blitz" ? 1 : minutes,
+				contentMode,
+				duration: minutes,
 			},
 		});
 
-		nextQuestion(1);
-	}, [searchParams, dispatch, nextQuestion, state.status]);
+		// Generate first question
+		const q = generateEquation(1, contentMode);
+		setQuestion(q);
+		setOptions(generateOptions(q.answer));
+	}, [searchParams, dispatch, state.status]); // Included missing dependencies
 
-	// Timer Loop (Runs based on frozen state)
+	// Timer Loop
 	useEffect(() => {
 		if (state.status !== "playing") return;
 
@@ -65,28 +79,48 @@ export const useGameLogic = () => {
 		return () => clearInterval(timer);
 	}, [isFrozen, state.status, dispatch]);
 
-	// Separate effect for timer pause to not reset game?
-	// Actually the previous logic had isFrozen inside the interval check.
-	// Let's replicate that behavior correctly.
-	// The issue with the previous useEffect was that it depended on isFrozen, so it re-ran (re-started game?) on freeze toggle?
-	// No, START_GAME would dispatch again. That's a bug in the original logic if useEffect deps included isFrozen.
-	// Let's fix this: Only start game once. Timer runs independently.
-
-	const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-
 	const handleAnswer = useCallback(
 		(selected: number) => {
 			if (!question || selectedAnswer !== null) return;
 
-			setSelectedAnswer(selected);
 			const isCorrect = selected === question.answer;
 
-			// Haptic feedback logic
+			// Handle Second Chance
+			if (!isCorrect && state.lifelines.secondChance) {
+				if (navigator.vibrate) navigator.vibrate([10, 50, 10]);
+
+				dispatch({
+					type: "USE_LIFELINE",
+					payload: { name: "secondChance" },
+				});
+
+				dispatch({
+					type: "ANSWER_QUESTION",
+					payload: {
+						id: crypto.randomUUID(),
+						isCorrect: true, // Streak maintained
+						points: Math.floor(5 * state.difficulty),
+						equation: question.equation,
+						correctAnswer: question.answer,
+						selectedAnswer: selected,
+						timestamp: Date.now(),
+					},
+				});
+
+				setSelectedAnswer(selected);
+				setTimeout(() => {
+					setSelectedAnswer(null);
+					nextQuestion(state.difficulty);
+				}, 250);
+				return;
+			}
+
+			setSelectedAnswer(selected);
+
 			if (settings.hapticsEnabled && navigator.vibrate) {
 				navigator.vibrate(isCorrect ? 5 : [50, 50, 50]);
 			}
 
-			// Update state immediately for stats/timer
 			dispatch({
 				type: "ANSWER_QUESTION",
 				payload: {
@@ -100,7 +134,6 @@ export const useGameLogic = () => {
 				},
 			});
 
-			// Delay the transition to next question to show feedback
 			setTimeout(
 				() => {
 					const newDifficulty =
@@ -119,6 +152,7 @@ export const useGameLogic = () => {
 			selectedAnswer,
 			state.difficulty,
 			state.streak,
+			state.lifelines.secondChance,
 			dispatch,
 			nextQuestion,
 			settings.hapticsEnabled,
@@ -131,8 +165,10 @@ export const useGameLogic = () => {
 		options,
 		disabledOptions,
 		isFrozen,
+		isSimplifyActive,
 		selectedAnswer,
 		setIsFrozen,
+		setIsSimplifyActive,
 		setDisabledOptions,
 		nextQuestion,
 		handleAnswer,

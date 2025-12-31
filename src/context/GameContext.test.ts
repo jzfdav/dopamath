@@ -5,6 +5,7 @@ describe("gameReducer", () => {
 	const initialState: GameState = {
 		status: "idle",
 		mode: "prime",
+		contentMode: "mixed",
 		score: 0,
 		answersAttempted: 0,
 		correctAnswers: 0,
@@ -17,6 +18,8 @@ describe("gameReducer", () => {
 			fiftyFifty: true,
 			skip: true,
 			freezeTime: true,
+			secondChance: true,
+			simplify: true,
 		},
 	};
 
@@ -28,7 +31,7 @@ describe("gameReducer", () => {
 		};
 		const action: GameAction = {
 			type: "START_GAME",
-			payload: { mode: "blitz", duration: 1 },
+			payload: { mode: "blitz", contentMode: "mixed", duration: 1 },
 		};
 		const state = gameReducer(prevState, action);
 

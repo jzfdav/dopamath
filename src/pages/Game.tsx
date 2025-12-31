@@ -9,8 +9,10 @@ export const Game = () => {
 		question,
 		options,
 		disabledOptions,
+		isSimplifyActive,
 		selectedAnswer,
 		setIsFrozen,
+		setIsSimplifyActive,
 		setDisabledOptions,
 		nextQuestion,
 		handleAnswer,
@@ -22,6 +24,10 @@ export const Game = () => {
 		// Disable 2 random wrong options
 		const toDisable = wrongOptions.sort(() => Math.random() - 0.5).slice(0, 2);
 		setDisabledOptions(toDisable);
+	};
+
+	const handleSimplify = () => {
+		setIsSimplifyActive(true);
 	};
 
 	const handleSkip = () => {
@@ -106,6 +112,7 @@ export const Game = () => {
 						onFiftyFifty={handleFiftyFifty}
 						onSkip={handleSkip}
 						onFreeze={handleFreeze}
+						onSimplify={handleSimplify}
 					/>
 				</div>
 
@@ -121,6 +128,7 @@ export const Game = () => {
                                 ${disabledOptions.includes(opt) ? "opacity-20 blur-sm" : "hover:bg-white/10 hover:border-primary/50"}
                                 ${selectedAnswer !== null && opt === question.answer ? "bg-primary! text-black border-primary shadow-[0_0_30px_rgba(0,255,157,0.6)]" : ""}
                                 ${selectedAnswer !== null && selectedAnswer === opt && opt !== question.answer ? "bg-error! text-white border-error shadow-[0_0_30px_rgba(255,0,85,0.6)]" : ""}
+                                ${isSimplifyActive && opt === question.answer ? "animate-pulse border-primary/50 shadow-[0_0_20px_rgba(0,255,157,0.3)]" : ""}
                             `}
 							onClick={() => handleAnswer(opt)}
 						>

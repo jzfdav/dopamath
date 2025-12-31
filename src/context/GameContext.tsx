@@ -3,11 +3,13 @@ import { createContext, type ReactNode, useContext, useReducer } from "react";
 // --- Types ---
 
 export type GameMode = "prime" | "blitz";
+export type ContentMode = "arithmetic" | "mixed";
 export type GameStatus = "idle" | "playing" | "paused" | "finished";
 
 export interface GameState {
 	status: GameStatus;
 	mode: GameMode;
+	contentMode: ContentMode;
 	score: number;
 	answersAttempted: number;
 	correctAnswers: number;
@@ -20,6 +22,8 @@ export interface GameState {
 		fiftyFifty: boolean;
 		skip: boolean;
 		freezeTime: boolean;
+		secondChance: boolean;
+		simplify: boolean;
 	};
 }
 
@@ -35,7 +39,10 @@ export interface GameHistoryItem {
 }
 
 export type GameAction =
-	| { type: "START_GAME"; payload: { mode: GameMode; duration: number } }
+	| {
+			type: "START_GAME";
+			payload: { mode: GameMode; contentMode: ContentMode; duration: number };
+	  }
 	| { type: "PAUSE_GAME" }
 	| { type: "RESUME_GAME" }
 	| { type: "END_GAME" }
@@ -54,7 +61,14 @@ export type GameAction =
 	  }
 	| {
 			type: "USE_LIFELINE";
-			payload: { name: "fiftyFifty" | "skip" | "freezeTime" };
+			payload: {
+				name:
+					| "fiftyFifty"
+					| "skip"
+					| "freezeTime"
+					| "secondChance"
+					| "simplify";
+			};
 	  };
 
 // --- Initial State ---
@@ -62,6 +76,7 @@ export type GameAction =
 const initialState: GameState = {
 	status: "idle",
 	mode: "prime",
+	contentMode: "mixed",
 	score: 0,
 	answersAttempted: 0,
 	correctAnswers: 0,
@@ -74,6 +89,8 @@ const initialState: GameState = {
 		fiftyFifty: true,
 		skip: true,
 		freezeTime: true,
+		secondChance: true,
+		simplify: true,
 	},
 };
 
@@ -86,6 +103,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 				...initialState,
 				status: "playing",
 				mode: action.payload.mode,
+				contentMode: action.payload.contentMode,
 				timeLeft: action.payload.duration * 60,
 				totalTime: action.payload.duration * 60,
 			};

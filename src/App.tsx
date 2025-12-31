@@ -6,6 +6,7 @@ import { SettingsProvider } from "@/context/SettingsContext";
 import { Game } from "@/pages/Game";
 import { Home } from "@/pages/Home";
 import { Settings } from "@/pages/Settings";
+import { Stats } from "@/pages/Stats";
 import { Summary } from "@/pages/Summary";
 
 const RouteTransition = ({ children }: { children: React.ReactNode }) => (
@@ -42,6 +43,7 @@ function App() {
 							/>
 							<Route path="/summary" element={<Summary />} />
 							<Route path="/settings" element={<Settings />} />
+							<Route path="/stats" element={<Stats />} />
 						</Routes>
 					</AnimatePresence>
 				</Layout>

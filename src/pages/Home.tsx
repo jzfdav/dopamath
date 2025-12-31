@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Settings as SettingsIcon } from "lucide-react";
+import { BarChart3, Settings as SettingsIcon } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/Button";
@@ -9,16 +9,17 @@ const SESSION_INTERVALS = [1, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29];
 
 export const Home = () => {
 	const navigate = useNavigate();
-	const [selectedTime, setSelectedTime] = useState(1); // Default to 1 minute
+	const [selectedTime, setSelectedTime] = useState(1);
+	const [contentMode, setContentMode] = useState<"arithmetic" | "mixed">(
+		"mixed",
+	);
 
 	const handleUrgeKiller = () => {
-		// Start game with selected time (Treat Urge Killer as "Start Selected")
-		navigate(`/game?mode=prime&minutes=${selectedTime}`);
+		navigate(`/game?mode=prime&minutes=${selectedTime}&content=${contentMode}`);
 	};
 
 	const handlePrimeSelect = (minutes: number) => {
 		setSelectedTime(minutes);
-		// Don't navigate immediately on wheel select
 	};
 
 	return (
@@ -29,7 +30,16 @@ export const Home = () => {
 			exit={{ opacity: 0, x: 20 }}
 			transition={{ duration: 0.3 }}
 		>
-			<div className="absolute top-safe right-4 z-50 pt-4">
+			{/* Top Bar Navigation */}
+			<div className="absolute top-safe left-6 right-6 z-50 pt-4 flex justify-between">
+				<Button
+					variant="ghost"
+					size="sm"
+					onClick={() => navigate("/stats")}
+					className="p-2 h-auto text-text-dim/40 hover:text-secondary transition-colors"
+				>
+					<BarChart3 size={24} />
+				</Button>
 				<Button
 					variant="ghost"
 					size="sm"
@@ -39,7 +49,8 @@ export const Home = () => {
 					<SettingsIcon size={24} />
 				</Button>
 			</div>
-			{/* Hero Section (Takes remaining space) */}
+
+			{/* Hero Section */}
 			<div className="flex-1 flex flex-col items-center justify-center w-full z-10">
 				<motion.div
 					initial={{ scale: 0.9, opacity: 0 }}
@@ -58,21 +69,55 @@ export const Home = () => {
 				</motion.div>
 			</div>
 
-			{/* Thumb Zone Section (Anchored to bottom) */}
+			{/* Controls Section */}
 			<div className="flex-none flex flex-col justify-end gap-6 w-full z-20 pb-8 pt-2">
-				{/* Time Selector Wheel */}
+				{/* Time Selection */}
 				<div className="flex flex-col gap-2">
 					<div className="flex items-center justify-center">
 						<span className="text-[10px] text-primary/50 uppercase tracking-[0.2em] font-bold">
 							Session Duration
 						</span>
 					</div>
-
 					<TimeSelector
 						options={SESSION_INTERVALS}
-						selected={selectedTime} // We need state for this
+						selected={selectedTime}
 						onSelect={handlePrimeSelect}
 					/>
+				</div>
+
+				{/* Content Mode Selection */}
+				<div className="flex flex-col gap-3">
+					<div className="flex items-center justify-center">
+						<span className="text-[10px] text-secondary/50 uppercase tracking-[0.2em] font-bold">
+							Operation Mode
+						</span>
+					</div>
+
+					<div className="flex p-1 bg-white/5 rounded-2xl glass-panel relative overflow-hidden h-14">
+						<motion.div
+							className="absolute top-1 bottom-1 bg-white/10 rounded-xl"
+							initial={false}
+							animate={{
+								x: contentMode === "arithmetic" ? 0 : "100%",
+							}}
+							style={{ width: "calc(50% - 4px)", left: 4 }}
+							transition={{ type: "spring", stiffness: 300, damping: 30 }}
+						/>
+						<button
+							type="button"
+							className={`flex-1 z-10 font-bold text-xs uppercase tracking-widest transition-colors ${contentMode === "arithmetic" ? "text-primary" : "text-text-dim"}`}
+							onClick={() => setContentMode("arithmetic")}
+						>
+							Arithmetic
+						</button>
+						<button
+							type="button"
+							className={`flex-1 z-10 font-bold text-xs uppercase tracking-widest transition-colors ${contentMode === "mixed" ? "text-secondary" : "text-text-dim"}`}
+							onClick={() => setContentMode("mixed")}
+						>
+							Mega-Mixed
+						</button>
+					</div>
 				</div>
 
 				{/* Primary CTA */}

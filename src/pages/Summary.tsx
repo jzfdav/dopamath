@@ -72,7 +72,11 @@ export const Summary = () => {
 	const handlePlayAgain = () => {
 		dispatch({
 			type: "START_GAME",
-			payload: { mode: state.mode, duration: state.totalTime / 60 },
+			payload: {
+				mode: state.mode,
+				contentMode: state.contentMode,
+				duration: state.totalTime / 60,
+			},
 		});
 		navigate("/game");
 	};
