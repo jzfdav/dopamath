@@ -31,13 +31,13 @@ export const Button = ({
 		secondary:
 			"bg-secondary text-white shadow-[0_0_20px_rgba(189,0,255,0.3)] hover:shadow-[0_0_30px_rgba(189,0,255,0.6)] hover:scale-105",
 		danger:
-			"bg-error text-white shadow-[0_0_20px_rgba(255,0,85,0.3)] hover:shadow-[0_0_30px_rgba(255,0,85,0.6)] hover:scale-105",
+			"bg-gradient-to-b from-[#FF0055] to-[#D00045] text-white shadow-[0_0_20px_rgba(255,0,85,0.3)] hover:shadow-[0_0_30px_rgba(255,0,85,0.6)] hover:scale-105 border-t border-white/20",
 		ghost: "bg-transparent text-text hover:bg-white/10",
 		outline:
 			"border-2 border-primary/50 text-primary hover:border-primary hover:bg-primary/10",
 		neon: "bg-transparent border border-primary text-primary shadow-[0_0_10px_var(--color-primary),inset_0_0_10px_var(--color-primary)] hover:bg-primary hover:text-black hover:shadow-[0_0_20px_var(--color-primary),inset_0_0_20px_var(--color-primary)]",
 		glass:
-			"glass-panel text-white hover:bg-white/10 hover:shadow-lg backdrop-blur-md",
+			"bg-white/5 backdrop-blur-md border border-white/10 text-white hover:bg-white/10 hover:border-white/20 shadow-lg hover:shadow-xl",
 	};
 
 	const sizes = {

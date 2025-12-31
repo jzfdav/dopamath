@@ -40,12 +40,12 @@ export const Home = () => {
 			</div>
 
 			{/* Thumb Zone Section (Bottom 40%) */}
-			<div className="flex-[2] flex flex-col justify-end gap-6 w-full z-20 pb-safe">
+			<div className="flex-[2] flex flex-col justify-end gap-8 w-full z-20 pb-safe">
 				{/* Mode Toggles / Secondary Actions can go here if needed */}
 
 				<div className="flex flex-col gap-4">
-					<div className="flex items-center justify-between px-2">
-						<span className="text-xs text-text-dim uppercase tracking-wider font-bold">
+					<div className="flex items-center justify-center px-2">
+						<span className="text-[10px] text-text-dim uppercase tracking-[0.2em] font-bold opacity-60">
 							Select Impulse
 						</span>
 					</div>
