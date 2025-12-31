@@ -52,8 +52,10 @@ export const Settings = () => {
 			</div>
 
 			<footer className="mt-auto pb-safe flex flex-col items-center">
-				<span className="text-[10px] text-text-dim/40 uppercase tracking-widest">
+				<span className="text-[10px] text-text-dim/40 uppercase tracking-widest text-center">
 					DopaMath v1.1.0
+					<br />
+					Build {__BUILD_DATE__.replace(/[-T:]/g, "").slice(0, 13)}
 				</span>
 			</footer>
 		</motion.div>

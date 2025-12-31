@@ -12,8 +12,8 @@ export const Stats = () => {
 	const avgAccuracy =
 		history.length > 0
 			? Math.round(
-					history.reduce((sum, h) => sum + h.accuracy, 0) / history.length,
-				)
+				history.reduce((sum, h) => sum + h.accuracy, 0) / history.length,
+			)
 			: 0;
 	const gamesPlayed = history.length;
 	const bestScore = history.reduce((max, h) => Math.max(max, h.score), 0);
@@ -118,9 +118,11 @@ export const Stats = () => {
 				))}
 			</div>
 
-			<footer className="mt-6 pb-safe flex flex-col items-center">
-				<span className="text-[10px] text-text-dim/40 uppercase tracking-widest">
-					Lifetime Stats
+			<footer className="mt-6 pb-safe flex flex-col items-center opacity-40">
+				<span className="text-[10px] text-text-dim uppercase tracking-widest text-center">
+					Lifetime Stats • v1.1.0
+					<br />
+					{__BUILD_DATE__.replace(/[-T:]/g, "").slice(0, 13)}
 				</span>
 			</footer>
 		</motion.div>
