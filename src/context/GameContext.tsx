@@ -9,7 +9,8 @@ export interface GameState {
 	status: GameStatus;
 	mode: GameMode;
 	score: number;
-	answersAttempted: number; // For accuracy
+	answersAttempted: number;
+	correctAnswers: number;
 	streak: number;
 	timeLeft: number; // in seconds
 	totalTime: number; // initial time in seconds
@@ -28,6 +29,8 @@ export interface GameHistoryItem {
 	userAnswer: number | string;
 	correctAnswer: number;
 	isCorrect: boolean;
+	points: number;
+	scoreAfter: number;
 	timestamp: number;
 }
 
@@ -37,7 +40,18 @@ export type GameAction =
 	| { type: "RESUME_GAME" }
 	| { type: "END_GAME" }
 	| { type: "TICK_TIMER" }
-	| { type: "ANSWER_QUESTION"; payload: { isCorrect: boolean; points: number } }
+	| {
+			type: "ANSWER_QUESTION";
+			payload: {
+				id: string;
+				isCorrect: boolean;
+				points: number;
+				equation: string;
+				correctAnswer: number;
+				selectedAnswer: number;
+				timestamp: number;
+			};
+	  }
 	| {
 			type: "USE_LIFELINE";
 			payload: { name: "fiftyFifty" | "skip" | "freezeTime" };
@@ -50,6 +64,7 @@ const initialState: GameState = {
 	mode: "prime",
 	score: 0,
 	answersAttempted: 0,
+	correctAnswers: 0,
 	streak: 0,
 	timeLeft: 0,
 	totalTime: 0,
@@ -89,14 +104,31 @@ function gameReducer(state: GameState, action: GameAction): GameState {
 				return { ...state, status: "finished", timeLeft: 0 };
 			return { ...state, timeLeft: state.timeLeft - 1 };
 
-		case "ANSWER_QUESTION":
+		case "ANSWER_QUESTION": {
+			const newScore =
+				state.score + (action.payload.isCorrect ? action.payload.points : 0);
+
+			const historyItem: GameHistoryItem = {
+				id: action.payload.id,
+				equation: action.payload.equation,
+				userAnswer: action.payload.selectedAnswer,
+				correctAnswer: action.payload.correctAnswer,
+				isCorrect: action.payload.isCorrect,
+				points: action.payload.isCorrect ? action.payload.points : 0,
+				scoreAfter: newScore,
+				timestamp: action.payload.timestamp,
+			};
+
 			return {
 				...state,
-				score:
-					state.score + (action.payload.isCorrect ? action.payload.points : 0),
+				score: newScore,
 				answersAttempted: state.answersAttempted + 1,
+				correctAnswers:
+					state.correctAnswers + (action.payload.isCorrect ? 1 : 0),
 				streak: action.payload.isCorrect ? state.streak + 1 : 0,
+				history: [...state.history, historyItem],
 			};
+		}
 
 		case "USE_LIFELINE":
 			return {

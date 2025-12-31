@@ -33,8 +33,11 @@ export const useGameLogic = () => {
 
 	// Init game (Runs once on mount/params change)
 	useEffect(() => {
+		// Guard: Don't restart if already playing or paused
+		if (state.status === "playing" || state.status === "paused") return;
+
 		const mode = searchParams.get("mode") === "blitz" ? "blitz" : "prime";
-		const minutes = parseInt(searchParams.get("minutes") || "2", 10);
+		const minutes = parseInt(searchParams.get("minutes") || "1", 10); // Match new default
 
 		dispatch({
 			type: "START_GAME",
@@ -45,7 +48,7 @@ export const useGameLogic = () => {
 		});
 
 		nextQuestion(1);
-	}, [searchParams, dispatch, nextQuestion]);
+	}, [searchParams, dispatch, nextQuestion, state.status]);
 
 	// Timer Loop (Runs based on frozen state)
 	useEffect(() => {

@@ -45,23 +45,17 @@ export const Summary = () => {
 	}, [state.score, state.mode, state.answersAttempted, state.status, navigate]);
 
 	const chartData = useMemo(() => {
-		let currentScore = 0;
-		return state.history.map((item, index) => {
-			if (item.isCorrect) {
-				currentScore += 10; // Simple plotting
-			}
-			return {
-				name: index + 1,
-				score: currentScore,
-			};
-		});
+		return state.history.map((item, index) => ({
+			name: index + 1,
+			score: item.scoreAfter,
+		}));
 	}, [state.history]);
 
 	if (state.status !== "finished") return null;
 
 	const accuracy =
 		state.answersAttempted > 0
-			? Math.round((state.score / (state.answersAttempted * 10)) * 100)
+			? Math.round((state.correctAnswers / state.answersAttempted) * 100)
 			: 0;
 
 	const handleHome = () => {

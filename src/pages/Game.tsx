@@ -1,11 +1,10 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/Button";
 import { Lifelines } from "@/components/Lifelines";
 import { useGameLogic } from "@/hooks/useGameLogic";
 
 export const Game = () => {
-	// Remove unused navigate
 	const {
 		state,
 		question,
@@ -17,6 +16,13 @@ export const Game = () => {
 		dispatch,
 	} = useGameLogic();
 	const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+	const isMounted = useRef(true);
+
+	useEffect(() => {
+		return () => {
+			isMounted.current = false;
+		};
+	}, []);
 
 	const handleFiftyFifty = () => {
 		if (!question) return;
@@ -32,7 +38,9 @@ export const Game = () => {
 
 	const handleFreeze = () => {
 		setIsFrozen(true);
-		setTimeout(() => setIsFrozen(false), 10000); // 10s freeze
+		setTimeout(() => {
+			if (isMounted.current) setIsFrozen(false);
+		}, 10000); // 10s freeze
 	};
 
 	const handleAnswer = (selected: number) => {
@@ -49,11 +57,21 @@ export const Game = () => {
 		// Update state immediately for stats/timer
 		dispatch({
 			type: "ANSWER_QUESTION",
-			payload: { isCorrect, points: isCorrect ? 10 * state.difficulty : 0 },
+			payload: {
+				id: crypto.randomUUID(),
+				isCorrect,
+				points: isCorrect ? 10 * state.difficulty : 0,
+				equation: question.equation,
+				correctAnswer: question.answer,
+				selectedAnswer: selected,
+				timestamp: Date.now(),
+			},
 		});
 
 		// Delay the transition to next question to show feedback
 		setTimeout(() => {
+			if (!isMounted.current) return;
+
 			const newDifficulty =
 				isCorrect && (state.streak + 1) % 5 === 0
 					? Math.min(state.difficulty + 1, 10)
