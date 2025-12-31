@@ -6,11 +6,11 @@ import App from "./App.tsx";
 
 const rootElement = document.getElementById("root");
 if (rootElement) {
-	createRoot(rootElement).render(
-		<StrictMode>
-			<BrowserRouter>
-				<App />
-			</BrowserRouter>
-		</StrictMode>,
-	);
+  createRoot(rootElement).render(
+    <StrictMode>
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
+        <App />
+      </BrowserRouter>
+    </StrictMode>,
+  );
 }
