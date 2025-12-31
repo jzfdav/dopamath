@@ -7,6 +7,7 @@ interface LifelinesProps {
 	onSkip: () => void;
 	onFreeze: () => void;
 	onSimplify: () => void;
+	onShield?: () => void;
 }
 
 export const Lifelines = ({
@@ -14,18 +15,9 @@ export const Lifelines = ({
 	onSkip,
 	onFreeze,
 	onSimplify,
+	onShield,
 }: LifelinesProps) => {
-	const { state, dispatch } = useGame();
-
-	const handleUse = (
-		name: "fiftyFifty" | "skip" | "freezeTime" | "secondChance" | "simplify",
-		callback?: () => void,
-	) => {
-		if (state.lifelines[name]) {
-			dispatch({ type: "USE_LIFELINE", payload: { name } });
-			callback?.();
-		}
-	};
+	const { state } = useGame();
 
 	return (
 		<div className="flex w-full gap-1 mb-6 px-1">
@@ -33,31 +25,31 @@ export const Lifelines = ({
 				icon={<Zap size={16} />}
 				label="50/50"
 				available={state.lifelines.fiftyFifty}
-				onClick={() => handleUse("fiftyFifty", onFiftyFifty)}
+				onClick={onFiftyFifty}
 			/>
 			<LifelineButton
 				icon={<Clock size={16} />}
 				label="Freeze"
 				available={state.lifelines.freezeTime}
-				onClick={() => handleUse("freezeTime", onFreeze)}
+				onClick={onFreeze}
 			/>
 			<LifelineButton
 				icon={<Shield size={16} />}
 				label="Shield"
 				available={state.lifelines.secondChance}
-				onClick={() => { }} // Fully passive indicator for now
+				onClick={onShield || (() => { })}
 			/>
 			<LifelineButton
 				icon={<Lightbulb size={16} />}
 				label="Simpl"
 				available={state.lifelines.simplify}
-				onClick={() => handleUse("simplify", onSimplify)}
+				onClick={onSimplify}
 			/>
 			<LifelineButton
 				icon={<SkipForward size={16} />}
 				label="Skip"
 				available={state.lifelines.skip}
-				onClick={() => handleUse("skip", onSkip)}
+				onClick={onSkip}
 			/>
 		</div>
 	);

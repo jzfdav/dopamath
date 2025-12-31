@@ -5,6 +5,42 @@ import { useGameLogic } from "@/hooks/useGameLogic";
 import { VisualTimer } from "@/components/VisualTimer";
 import { ParticleBurst } from "@/components/ParticleBurst";
 import { useState, useEffect } from "react";
+import { LifelineModal, type LifelineInfo } from "@/components/LifelineModal";
+import { Clock, Lightbulb, Shield, SkipForward, Zap } from "lucide-react";
+import { useSettings } from "@/context/SettingsContext";
+
+const LIFELINE_DATA: Record<string, LifelineInfo> = {
+	fiftyFifty: {
+		id: "fiftyFifty",
+		name: "50/50",
+		description: "Removes two incorrect answers, doubling your chances of success.",
+		icon: <Zap size={32} />
+	},
+	freezeTime: {
+		id: "freezeTime",
+		name: "Time Freeze",
+		description: "Halts the timer completely. Take your time to calculate the perfect answer.",
+		icon: <Clock size={32} />
+	},
+	simplify: {
+		id: "simplify",
+		name: "Simplify",
+		description: "Converts complex expressions into basic arithmetic for one turn.",
+		icon: <Lightbulb size={32} />
+	},
+	skip: {
+		id: "skip",
+		name: "Skip",
+		description: "Skips the current question without breaking your streak or losing points.",
+		icon: <SkipForward size={32} />
+	},
+	secondChance: {
+		id: "secondChance",
+		name: "Shield",
+		description: "A passive fallback. If you get an answer wrong, the shield breaks instead of your streak.",
+		icon: <Shield size={32} />
+	}
+};
 
 export const Game = () => {
 	const {
@@ -20,10 +56,16 @@ export const Game = () => {
 		setDisabledOptions,
 		nextQuestion,
 		handleAnswer,
+		dispatch,
 	} = useGameLogic();
 
+	const { settings, updateDismissedTips } = useSettings();
 	const [showParticles, setShowParticles] = useState(false);
 	const [shake, setShake] = useState(false);
+
+	// Modal State
+	const [activeLifelineModal, setActiveLifelineModal] = useState<LifelineInfo | null>(null);
+	const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
 
 	// Detect correct/wrong answer for visual effects
 	useEffect(() => {
@@ -39,27 +81,60 @@ export const Game = () => {
 
 	if (!question) return null;
 
-	const handleFreeze = () => {
-		setIsFrozen(true);
-		// Logic is actually handled in Lifelines button via handleUse, 
-		// but we still need the props here if we want to call it manually
+	const triggerLifeline = (name: keyof typeof LIFELINE_DATA, action: () => void) => {
+		if (!state.lifelines[name as keyof typeof state.lifelines]) return;
+
+		// Check if tip is dismissed
+		if (settings.dismissedLifelineTips.includes(name)) {
+			dispatch({ type: "USE_LIFELINE", payload: { name: name as any } });
+			action();
+		} else {
+			// Pause game and show modal
+			dispatch({ type: "PAUSE_GAME" });
+			setPendingAction(() => action);
+			setActiveLifelineModal(LIFELINE_DATA[name]);
+		}
 	};
 
-	const handleFiftyFifty = () => {
+	const handleModalConfirm = (dontShowAgain: boolean) => {
+		if (activeLifelineModal && dontShowAgain) {
+			updateDismissedTips(activeLifelineModal.id);
+		}
+
+		if (activeLifelineModal) {
+			dispatch({ type: "USE_LIFELINE", payload: { name: activeLifelineModal.id as any } });
+		}
+
+		dispatch({ type: "RESUME_GAME" });
+		pendingAction?.();
+		setActiveLifelineModal(null);
+		setPendingAction(null);
+	};
+
+	const handleModalClose = (dontShowAgain: boolean) => {
+		if (activeLifelineModal && dontShowAgain) {
+			updateDismissedTips(activeLifelineModal.id);
+		}
+		dispatch({ type: "RESUME_GAME" });
+		setActiveLifelineModal(null);
+		setPendingAction(null);
+	};
+
+	const onFreeze = () => triggerLifeline("freezeTime", () => setIsFrozen(true));
+
+	const onFiftyFifty = () => triggerLifeline("fiftyFifty", () => {
 		const wrongOptions = options.filter((opt) => opt !== question.answer);
 		const toDisable = wrongOptions
 			.sort(() => Math.random() - 0.5)
 			.slice(0, 2);
 		setDisabledOptions(toDisable);
-	};
+	});
 
-	const handleSimplify = () => {
-		setIsSimplifyActive(true);
-	};
+	const onSimplify = () => triggerLifeline("simplify", () => setIsSimplifyActive(true));
 
-	const handleSkip = () => {
-		nextQuestion(state.difficulty);
-	};
+	const onSkip = () => triggerLifeline("skip", () => nextQuestion(state.difficulty));
+
+	const onShield = () => triggerLifeline("secondChance", () => { });
 
 	return (
 		<motion.div
@@ -72,6 +147,13 @@ export const Game = () => {
 			transition={{ duration: shake ? 0.4 : 0.3 }}
 		>
 			<ParticleBurst active={showParticles} onComplete={() => setShowParticles(false)} />
+
+			<LifelineModal
+				isOpen={activeLifelineModal !== null}
+				lifeline={activeLifelineModal}
+				onClose={handleModalClose}
+				onConfirm={handleModalConfirm}
+			/>
 
 			{/* Game Header */}
 			<div className="flex-none pt-safe pb-4 flex items-center justify-between z-10">
@@ -164,7 +246,7 @@ export const Game = () => {
 												: "ghost"
 										}
 										size="lg"
-										disabled={isDisabled || selectedAnswer !== null}
+										disabled={isDisabled || selectedAnswer !== null || state.status === "paused"}
 										className={`w-full h-24 text-2xl font-black rounded-3xl transition-all ${isSelected ? "ring-4 ring-white/20" : "glass-panel"
 											} ${isDisabled ? "opacity-30 grayscale cursor-not-allowed" : ""}`}
 										onClick={() => handleAnswer(option)}
@@ -181,10 +263,11 @@ export const Game = () => {
 			{/* UI Footer */}
 			<div className="flex-none pt-4 pb-safe z-10">
 				<Lifelines
-					onFreeze={handleFreeze}
-					onFiftyFifty={handleFiftyFifty}
-					onSimplify={handleSimplify}
-					onSkip={handleSkip}
+					onFreeze={onFreeze}
+					onFiftyFifty={onFiftyFifty}
+					onSimplify={onSimplify}
+					onSkip={onSkip}
+					onShield={onShield}
 				/>
 			</div>
 		</motion.div>

@@ -99,8 +99,8 @@ export const Home = () => {
 							type="button"
 							onClick={() => setContentMode("arithmetic")}
 							className={`flex-1 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${contentMode === "arithmetic"
-								? "bg-white text-black shadow-lg"
-								: "text-text-dim hover:text-white"
+									? "bg-white text-black shadow-lg"
+									: "text-text-dim hover:text-white"
 								}`}
 						>
 							Arithmetic
@@ -109,8 +109,8 @@ export const Home = () => {
 							type="button"
 							onClick={() => setContentMode("mixed")}
 							className={`flex-1 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${contentMode === "mixed"
-								? "bg-white text-black shadow-lg"
-								: "text-text-dim hover:text-white"
+									? "bg-white text-black shadow-lg"
+									: "text-text-dim hover:text-white"
 								}`}
 						>
 							Mixed
@@ -119,8 +119,9 @@ export const Home = () => {
 				</motion.div>
 
 				{/* Main Action Section (Thumb Zone) */}
-				<motion.div variants={itemVariants} className="w-full max-w-sm flex flex-col items-center gap-8">
-					<div className="flex items-center gap-6">
+				<motion.div variants={itemVariants} className="w-full max-w-sm flex flex-col items-center gap-6">
+					{/* Navigation Icons Row Above Engage button */}
+					<div className="flex items-center gap-6 mb-2">
 						<motion.button
 							whileHover={{ scale: 1.1, rotate: -5 }}
 							whileTap={{ scale: 0.9 }}
@@ -131,16 +132,12 @@ export const Home = () => {
 						</motion.button>
 
 						<motion.button
-							whileHover={{
-								scale: 1.05,
-								boxShadow: "0 0 40px rgba(0, 255, 157, 0.4)"
-							}}
-							whileTap={{ scale: 0.95 }}
-							onClick={handleStart}
-							className="relative group bg-primary text-black font-black text-3xl italic tracking-tighter px-12 py-6 rounded-[2.5rem] shadow-[0_20px_40px_rgba(0,255,157,0.25)] transition-all overflow-hidden"
+							whileHover={{ scale: 1.1 }}
+							whileTap={{ scale: 0.9 }}
+							onClick={() => setIsInfoOpen(true)}
+							className="p-4 glass-panel rounded-2xl text-text-dim hover:text-primary transition-colors hover:border-primary/30"
 						>
-							<div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-							ENGAGE
+							<HelpCircle size={24} />
 						</motion.button>
 
 						<motion.button
@@ -153,13 +150,23 @@ export const Home = () => {
 						</motion.button>
 					</div>
 
+					{/* Primary Engage CTA */}
 					<motion.button
-						type="button"
-						onClick={() => setIsInfoOpen(true)}
-						className="flex items-center gap-2 px-4 py-2 text-[10px] font-bold text-text-dim hover:text-white transition-colors uppercase tracking-[0.2em]"
+						whileHover={{
+							scale: 1.05,
+							boxShadow: "0 0 40px rgba(0, 255, 157, 0.4)"
+						}}
+						whileTap={{ scale: 0.95 }}
+						onClick={handleStart}
+						className="relative group bg-primary text-black font-black text-3xl italic tracking-tighter px-16 py-8 rounded-[3rem] shadow-[0_20px_40px_rgba(0,255,157,0.25)] transition-all overflow-hidden"
 					>
-						<HelpCircle size={14} /> Philosophy
+						<div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+						ENGAGE
 					</motion.button>
+
+					<p className="text-[10px] font-black uppercase tracking-[0.3em] text-text-dim opacity-40">
+						Ready for recalibration?
+					</p>
 				</motion.div>
 			</motion.div>
 

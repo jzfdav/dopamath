@@ -13,17 +13,20 @@ interface Settings {
 	hapticsEnabled: boolean;
 	audioTicksEnabled: boolean;
 	timerStyle: TimerStyle;
+	dismissedLifelineTips: string[];
 }
 
 const DEFAULT_SETTINGS: Settings = {
 	hapticsEnabled: true,
 	audioTicksEnabled: true,
 	timerStyle: "digital",
+	dismissedLifelineTips: [],
 };
 
 const SettingsContext = createContext<{
 	settings: Settings;
 	updateSettings: (updates: Partial<Settings>) => void;
+	updateDismissedTips: (tipId: string) => void;
 } | null>(null);
 
 export const SettingsProvider = ({
@@ -44,8 +47,20 @@ export const SettingsProvider = ({
 		setSettings((prev) => ({ ...prev, ...updates }));
 	};
 
+	const updateDismissedTips = (tipId: string) => {
+		setSettings(prev => {
+			if (prev.dismissedLifelineTips.includes(tipId)) return prev;
+			const next = {
+				...prev,
+				dismissedLifelineTips: [...prev.dismissedLifelineTips, tipId]
+			};
+			localStorage.setItem("dopamath_settings", JSON.stringify(next));
+			return next;
+		});
+	};
+
 	return (
-		<SettingsContext.Provider value={{ settings, updateSettings }}>
+		<SettingsContext.Provider value={{ settings, updateSettings, updateDismissedTips }}>
 			{children}
 		</SettingsContext.Provider>
 	);
