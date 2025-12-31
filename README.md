@@ -1,9 +1,19 @@
 # DopaMath
 **Math is the new Scroll.**
 
-![License](https://img.shields.io/badge/license-MIT-blue)
-![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
-![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
+![CI](https://github.com/jzfdav/dopamath/actions/workflows/ci.yml/badge.svg)
+![Deploy](https://github.com/jzfdav/dopamath/actions/workflows/deploy.yml/badge.svg)
+![License](https://img.shields.io/github/license/jzfdav/dopamath)
+![v1.0.0](https://img.shields.io/badge/version-1.0.0-blue)
+
+<div align="center">
+  <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
+  <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white" alt="Framer Motion" />
+  <img src="https://img.shields.io/badge/PWA-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white" alt="PWA" />
+</div>
 
 DopaMath is a PWA designed to break the doom-scrolling loop by providing a high-dopamine, productive alternative: solving rapid-fire math problems. It uses game design psychology—streaks, haptics, and immediate feedback—to make mental arithmetic as addictive as a social feed.
 
