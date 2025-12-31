@@ -16,60 +16,91 @@ export const Home = () => {
 	};
 
 	return (
-		<div className="flex flex-col items-center w-full h-full relative">
-			{/* Hero Section: Urge Killer */}
-			<div className="flex-1 flex flex-col items-center justify-center w-full min-h-[40vh]">
+		<div className="flex flex-col w-full h-full relative p-6">
+			{/* Background Texture */}
+			<div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none mix-blend-overlay"></div>
+
+			{/* Hero Section (Top 60% - Visual Only) */}
+			<div className="flex-[3] flex flex-col items-center justify-center w-full z-10">
 				<motion.div
 					initial={{ scale: 0.9, opacity: 0 }}
 					animate={{ scale: 1, opacity: 1 }}
 					transition={{ duration: 0.5, type: "spring" }}
+					className="flex flex-col items-center"
+				>
+					<h1 className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-br from-primary to-secondary neon-text tracking-tighter mb-2">
+						DOPA
+						<br />
+						MATH
+					</h1>
+					<p className="text-text-dim text-sm uppercase tracking-[0.3em] opacity-70">
+						Dopamine Re-Engineered
+					</p>
+				</motion.div>
+			</div>
+
+			{/* Thumb Zone Section (Bottom 40%) */}
+			<div className="flex-[2] flex flex-col justify-end gap-6 w-full z-20 pb-safe">
+				{/* Mode Toggles / Secondary Actions can go here if needed */}
+
+				<div className="flex flex-col gap-4">
+					<div className="flex items-center justify-between px-2">
+						<span className="text-xs text-text-dim uppercase tracking-wider font-bold">
+							Select Impulse
+						</span>
+					</div>
+
+					<div className="grid grid-cols-5 gap-3">
+						{PRIME_INTERVALS.map((min, i) => (
+							<motion.div
+								key={min}
+								initial={{ opacity: 0, y: 50 }}
+								animate={{ opacity: 1, y: 0 }}
+								transition={{
+									delay: i * 0.05,
+									type: "spring",
+									stiffness: 300,
+									damping: 20,
+								}}
+							>
+								<Button
+									variant="glass"
+									className="w-full aspect-square flex flex-col items-center justify-center p-0 !rounded-xl group"
+									onClick={() => handlePrimeSelect(min)}
+								>
+									<span className="text-xl font-mono text-white group-hover:text-primary transition-colors">
+										{min}
+									</span>
+								</Button>
+							</motion.div>
+						))}
+					</div>
+				</div>
+
+				{/* Primary CTA */}
+				<motion.div
+					initial={{ y: 100, opacity: 0 }}
+					animate={{ y: 0, opacity: 1 }}
+					transition={{
+						delay: 0.3,
+						type: "spring",
+						stiffness: 200,
+						damping: 20,
+					}}
 				>
 					<Button
 						variant="danger"
 						size="xl"
-						className="rounded-full w-48 h-48 flex items-center justify-center text-3xl shadow-[0_0_50px_rgba(255,0,85,0.4)] animate-pulse hover:animate-none"
+						className="w-full h-20 text-2xl shadow-[0_0_30px_rgba(255,0,85,0.4)] animate-pulse hover:animate-none flex items-center justify-center gap-4"
 						onClick={handleUrgeKiller}
 					>
-						URGE
-						<br />
-						KILLER
+						<span className="relative flex h-3 w-3">
+							<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+							<span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+						</span>
+						URGE KILLER
 					</Button>
 				</motion.div>
-				<p className="mt-8 text-white/50 text-sm uppercase tracking-widest">
-					Immediate Intervention
-				</p>
-			</div>
-
-			{/* Prime Flow Selection */}
-			<div className="w-full pb-12 px-4">
-				<div className="flex items-center justify-between mb-6 px-2">
-					<h2 className="text-xl font-bold text-primary">Prime Flow</h2>
-					<span className="text-xs text-white/40 uppercase tracking-wider">
-						Select Duration
-					</span>
-				</div>
-
-				<div className="grid grid-cols-5 gap-3">
-					{PRIME_INTERVALS.map((min, i) => (
-						<motion.div
-							key={min}
-							initial={{ opacity: 0, y: 20 }}
-							animate={{ opacity: 1, y: 0 }}
-							transition={{ delay: i * 0.05 }}
-						>
-							<Button
-								variant="ghost"
-								className="w-full aspect-square flex flex-col items-center justify-center border border-white/10 hover:border-primary/50 hover:bg-primary/10 transition-all group"
-								onClick={() => handlePrimeSelect(min)}
-							>
-								<span className="text-xl font-mono text-white group-hover:text-primary transition-colors">
-									{min}
-								</span>
-								<span className="text-[10px] text-white/30 lowercase">min</span>
-							</Button>
-						</motion.div>
-					))}
-				</div>
 			</div>
 		</div>
 	);
