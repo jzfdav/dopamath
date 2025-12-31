@@ -12,7 +12,7 @@ export const Layout = ({ children }: LayoutProps) => {
 		<motion.div
 			initial={{ opacity: 0 }}
 			animate={{ opacity: 1 }}
-			className="flex flex-col flex-1 w-full h-full max-w-md mx-auto p-4 relative"
+			className="flex flex-col flex-1 w-full h-[100dvh] max-w-md mx-auto p-4 relative overflow-hidden"
 		>
 			{/* Persistent Global Background Noise */}
 			<div

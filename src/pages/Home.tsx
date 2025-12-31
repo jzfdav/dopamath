@@ -51,7 +51,7 @@ export const Home = () => {
 	};
 
 	return (
-		<div className="flex flex-col min-h-[100dvh] relative overflow-hidden bg-background">
+		<div className="flex flex-col h-full relative overflow-hidden bg-background">
 			{/* Decorative background elements */}
 			<div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 blur-[120px] rounded-full pointer-events-none" />
 			<div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/10 blur-[120px] rounded-full pointer-events-none" />

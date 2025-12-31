@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import type { ContentMode } from "./GameContext";
 
 export type TimerStyle =
@@ -53,11 +53,11 @@ export const SettingsProvider = ({
 		localStorage.setItem("dopamath_settings", JSON.stringify(settings));
 	}, [settings]);
 
-	const updateSettings = (updates: Partial<Settings>) => {
+	const updateSettings = useCallback((updates: Partial<Settings>) => {
 		setSettings((prev) => ({ ...prev, ...updates }));
-	};
+	}, []);
 
-	const updateDismissedTips = (tipId: string) => {
+	const updateDismissedTips = useCallback((tipId: string) => {
 		setSettings(prev => {
 			if (prev.dismissedLifelineTips.includes(tipId)) return prev;
 			const next = {
@@ -67,7 +67,7 @@ export const SettingsProvider = ({
 			localStorage.setItem("dopamath_settings", JSON.stringify(next));
 			return next;
 		});
-	};
+	}, []);
 
 	return (
 		<SettingsContext.Provider value={{ settings, updateSettings, updateDismissedTips }}>

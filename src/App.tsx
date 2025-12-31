@@ -32,7 +32,14 @@ function App() {
 				<Layout>
 					<AnimatePresence mode="wait">
 						<Routes location={location} key={location.pathname}>
-							<Route path="/" element={<Home />} />
+							<Route
+								path="/"
+								element={
+									<RouteTransition>
+										<Home />
+									</RouteTransition>
+								}
+							/>
 							<Route
 								path="/game"
 								element={
@@ -41,9 +48,30 @@ function App() {
 									</RouteTransition>
 								}
 							/>
-							<Route path="/summary" element={<Summary />} />
-							<Route path="/settings" element={<Settings />} />
-							<Route path="/stats" element={<Stats />} />
+							<Route
+								path="/summary"
+								element={
+									<RouteTransition>
+										<Summary />
+									</RouteTransition>
+								}
+							/>
+							<Route
+								path="/settings"
+								element={
+									<RouteTransition>
+										<Settings />
+									</RouteTransition>
+								}
+							/>
+							<Route
+								path="/stats"
+								element={
+									<RouteTransition>
+										<Stats />
+									</RouteTransition>
+								}
+							/>
 						</Routes>
 					</AnimatePresence>
 				</Layout>
