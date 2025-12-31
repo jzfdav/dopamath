@@ -21,41 +21,48 @@ export const TimeSelector = ({
 	const x = useMotionValue(0);
 	const smoothX = useSpring(x, { stiffness: 400, damping: 40 });
 
+	// Handle Circular Logic: Internal options list
+	const internalOptions = [...options, ...options, ...options];
+	const offsetCount = options.length;
+
 	useEffect(() => {
 		if (containerRef.current) {
 			setWidth(containerRef.current.offsetWidth);
-			// Center the initial selected item
+			// Center the initial selected item (in the second set)
 			const centerOffset = containerRef.current.offsetWidth / 2;
-			const selectedIndex = options.indexOf(selected);
+			const selectedIndex = options.indexOf(selected) + offsetCount;
 			const initialX =
 				centerOffset -
 				selectedIndex * (ITEM_WIDTH + ITEM_SPACING) -
 				ITEM_WIDTH / 2;
 			x.set(initialX);
 		}
-	}, [options, selected, x]); // Removed unnecessary dependencies
+	}, [options, selected, x, offsetCount]);
 
 	const handleDragEnd = (_: unknown, info: PanInfo) => {
 		const centerOffset = width / 2;
-		// x = center - index * (w+s) - w/2
+		const currentX = x.get() + info.offset.x;
 
 		const rawIndex =
-			(centerOffset - ITEM_WIDTH / 2 - (x.get() + info.offset.x)) /
-			(ITEM_WIDTH + ITEM_SPACING);
-		let snappedIndex = Math.round(rawIndex);
+			(centerOffset - ITEM_WIDTH / 2 - currentX) / (ITEM_WIDTH + ITEM_SPACING);
+		const snappedIndex = Math.round(rawIndex);
 
-		// Clamp
-		snappedIndex = Math.max(0, Math.min(snappedIndex, options.length - 1));
+		// Virtualized loop logic: if we go too far, snap back to middle set
+		let finalIndex = snappedIndex;
+		if (snappedIndex < offsetCount) {
+			finalIndex = snappedIndex + offsetCount;
+		} else if (snappedIndex >= offsetCount * 2) {
+			finalIndex = snappedIndex - offsetCount;
+		}
 
 		const newX =
-			centerOffset -
-			snappedIndex * (ITEM_WIDTH + ITEM_SPACING) -
-			ITEM_WIDTH / 2;
+			centerOffset - finalIndex * (ITEM_WIDTH + ITEM_SPACING) - ITEM_WIDTH / 2;
 
 		x.set(newX);
 
-		if (options[snappedIndex] !== selected) {
-			onSelect(options[snappedIndex]);
+		const actualValue = internalOptions[finalIndex];
+		if (actualValue !== selected) {
+			onSelect(actualValue);
 			playTickSound();
 			triggerHaptic();
 		}
@@ -86,8 +93,9 @@ export const TimeSelector = ({
 				onDragEnd={handleDragEnd}
 				// Custom elasticity could go here
 			>
-				{options.map((opt) => (
-					<Item key={opt} value={opt} isSelected={opt === selected} />
+				{internalOptions.map((opt, i) => (
+					// biome-ignore lint/suspicious/noArrayIndexKey: Essential for virtual loop
+					<Item key={`${opt}-${i}`} value={opt} isSelected={opt === selected} />
 				))}
 			</motion.div>
 		</div>
@@ -123,7 +131,7 @@ const Item = ({ value, isSelected }: ItemProps) => {
 			>
 				{value}
 			</span>
-			<span className="text-[10px] ml-1 mb-2 opacity-50">m</span>
+			<span className="text-[10px] ml-1 mb-2 opacity-50">min</span>
 		</motion.div>
 	);
 };

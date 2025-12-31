@@ -4,11 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/Button";
 import { TimeSelector } from "@/components/TimeSelector";
 
-const PRIME_INTERVALS = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29];
+const PRIME_INTERVALS = [1, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29];
 
 export const Home = () => {
 	const navigate = useNavigate();
-	const [selectedTime, setSelectedTime] = useState(2); // Default to 2 minutes
+	const [selectedTime, setSelectedTime] = useState(1); // Default to 1 minute
 
 	const handleUrgeKiller = () => {
 		// Start game with selected time (Treat Urge Killer as "Start Selected")

@@ -41,7 +41,7 @@ export const playTickSound = () => {
 
 		osc.start();
 		osc.stop(ctx.currentTime + 0.05);
-	} catch (e) {
+	} catch (_e) {
 		// Silently fail if audio is not supported/blocked
 	}
 };

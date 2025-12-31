@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
+import { useState } from "react";
 import { Button } from "@/components/Button";
 import { Lifelines } from "@/components/Lifelines";
 import { useGameLogic } from "@/hooks/useGameLogic";
@@ -15,7 +16,7 @@ export const Game = () => {
 		nextQuestion,
 		dispatch,
 	} = useGameLogic();
-	// The hook handles navigation on finish, so we might not need it here unless for UI actions.
+	const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
 
 	const handleFiftyFifty = () => {
 		if (!question) return;
@@ -35,27 +36,32 @@ export const Game = () => {
 	};
 
 	const handleAnswer = (selected: number) => {
-		if (!question) return;
+		if (!question || selectedAnswer !== null) return;
 
+		setSelectedAnswer(selected);
 		const isCorrect = selected === question.answer;
 
-		// Haptic feedback logic here usually
+		// Haptic feedback logic
 		if (navigator.vibrate) {
 			navigator.vibrate(isCorrect ? 5 : [50, 50, 50]);
 		}
 
+		// Update state immediately for stats/timer
 		dispatch({
 			type: "ANSWER_QUESTION",
 			payload: { isCorrect, points: isCorrect ? 10 * state.difficulty : 0 },
 		});
 
-		// Difficulty scaling
-		const newDifficulty =
-			isCorrect && (state.streak + 1) % 5 === 0
-				? Math.min(state.difficulty + 1, 10)
-				: state.difficulty;
+		// Delay the transition to next question to show feedback
+		setTimeout(() => {
+			const newDifficulty =
+				isCorrect && (state.streak + 1) % 5 === 0
+					? Math.min(state.difficulty + 1, 10)
+					: state.difficulty;
 
-		nextQuestion(newDifficulty);
+			setSelectedAnswer(null);
+			nextQuestion(newDifficulty);
+		}, 600);
 	};
 
 	if (!question) return null;
@@ -140,7 +146,11 @@ export const Game = () => {
 							variant="glass"
 							size="xl"
 							disabled={disabledOptions.includes(opt)}
-							className={`h-full text-4xl font-mono transition-all active:scale-95 ${disabledOptions.includes(opt) ? "opacity-20 blur-sm" : "hover:bg-white/10 hover:border-primary/50"}`}
+							className={`h-full text-4xl font-mono transition-all active:scale-95 
+                                ${disabledOptions.includes(opt) ? "opacity-20 blur-sm" : "hover:bg-white/10 hover:border-primary/50"}
+                                ${selectedAnswer !== null && opt === question.answer ? "bg-primary! text-black border-primary shadow-[0_0_30px_rgba(0,255,157,0.6)]" : ""}
+                                ${selectedAnswer !== null && selectedAnswer === opt && opt !== question.answer ? "bg-error! text-white border-error shadow-[0_0_30px_rgba(255,0,85,0.6)]" : ""}
+                            `}
 							onClick={() => handleAnswer(opt)}
 						>
 							{opt}
