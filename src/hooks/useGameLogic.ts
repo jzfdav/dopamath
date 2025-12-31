@@ -91,6 +91,9 @@ export const useGameLogic = () => {
 
 			if (isCorrect) {
 				success();
+				if (state.timeLeft <= 5) {
+					dispatch({ type: "ADD_TIME", payload: { seconds: 1 } });
+				}
 			} else {
 				error();
 				if (state.lifelines.secondChance) {

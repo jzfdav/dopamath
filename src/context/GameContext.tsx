@@ -69,7 +69,8 @@ export type GameAction =
 			| "secondChance"
 			| "simplify";
 		};
-	};
+	}
+	| { type: "ADD_TIME"; payload: { seconds: number } };
 
 // --- Initial State ---
 
@@ -158,6 +159,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 					[action.payload.name]: false,
 				},
 			};
+
+		case "ADD_TIME":
+			if (state.status !== "playing") return state;
+			return { ...state, timeLeft: state.timeLeft + action.payload.seconds };
 
 		default:
 			return state;
