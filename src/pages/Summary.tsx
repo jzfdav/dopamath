@@ -94,7 +94,7 @@ export const Summary = () => {
 
 	return (
 		<motion.div
-			className="flex flex-col w-full h-full relative p-6 overflow-hidden"
+			className="flex flex-col w-full h-full relative p-4 overflow-y-auto scrollbar-hide"
 			initial={{ opacity: 0, scale: 0.95 }}
 			animate={{ opacity: 1, scale: 1 }}
 			exit={{ opacity: 0, scale: 1.05 }}
@@ -103,52 +103,52 @@ export const Summary = () => {
 			<motion.div
 				initial={{ scale: 0.8, opacity: 0 }}
 				animate={{ scale: 1, opacity: 1 }}
-				className="flex-1 flex flex-col items-center justify-center w-full z-10"
+				className="flex-1 flex flex-col items-center justify-center w-full z-10 min-h-min py-2"
 			>
-				<span className="text-text-dim tracking-[0.5em] uppercase text-xs mb-6">
+				<span className="text-text-dim tracking-[0.5em] uppercase text-[10px] mb-2">
 					Session Complete
 				</span>
 
-				<div className="relative mb-12 flex flex-col items-center px-6">
-					<h1 className="text-9xl font-black text-transparent bg-clip-text bg-gradient-to-br from-primary to-secondary filter drop-shadow-neon leading-none">
+				<div className="relative mb-4 flex flex-col items-center px-4">
+					<h1 className="text-7xl sm:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-br from-primary to-secondary filter drop-shadow-neon leading-none">
 						{state.score}
 					</h1>
 					{isNewRecord && (
 						<motion.div
 							initial={{ y: 20, opacity: 0, rotate: -10 }}
 							animate={{ y: 0, opacity: 1, rotate: 12 }}
-							className="absolute -top-8 -right-8 bg-secondary text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg border border-white/20 whitespace-nowrap"
+							className="absolute -top-4 -right-4 sm:-top-8 sm:-right-8 bg-secondary text-white text-[10px] sm:text-sm font-bold px-2 py-0.5 sm:px-3 sm:py-1 rounded-full shadow-lg border border-white/20 whitespace-nowrap"
 						>
 							NEW BEST!
 						</motion.div>
 					)}
 				</div>
 
-				<div className="grid grid-cols-2 gap-4 w-full max-w-sm mb-8">
-					<div className="glass-panel p-4 rounded-2xl flex flex-col items-center">
-						<span className="text-[10px] text-text-dim uppercase tracking-widest font-bold mb-1">
+				<div className="grid grid-cols-2 gap-3 w-full max-w-sm mb-4">
+					<div className="glass-panel p-3 rounded-xl flex flex-col items-center">
+						<span className="text-[10px] text-text-dim uppercase tracking-widest font-bold mb-0.5">
 							Accuracy
 						</span>
 						<span
-							className={`text-xl font-mono ${accuracy > 80 ? "text-primary" : "text-white"}`}
+							className={`text-lg font-mono ${accuracy > 80 ? "text-primary" : "text-white"}`}
 						>
 							{accuracy}%
 						</span>
 					</div>
-					<div className="glass-panel p-4 rounded-2xl flex flex-col items-center">
-						<span className="text-[10px] text-text-dim uppercase tracking-widest font-bold mb-1 opacity-60">
+					<div className="glass-panel p-3 rounded-xl flex flex-col items-center">
+						<span className="text-[10px] text-text-dim uppercase tracking-widest font-bold mb-0.5 opacity-60">
 							Best
 						</span>
-						<span className="text-xl font-mono text-white">{bestScore}</span>
+						<span className="text-lg font-mono text-white">{bestScore}</span>
 					</div>
 				</div>
 
 				{chartData.length > 0 && (
-					<div className="w-full max-w-sm h-40 glass-panel p-4 rounded-2xl mb-8 flex flex-col">
-						<div className="flex items-center gap-2 mb-2">
-							<TrendingUp size={14} className="text-primary" />
+					<div className="w-full max-w-sm h-28 sm:h-40 glass-panel p-3 rounded-xl mb-4 flex flex-col">
+						<div className="flex items-center gap-2 mb-1">
+							<TrendingUp size={12} className="text-primary" />
 							<span className="text-[10px] text-text-dim uppercase tracking-widest font-bold">
-								Session Trend
+								Trend
 							</span>
 						</div>
 						<div className="flex-1 w-full min-h-0">
@@ -187,22 +187,22 @@ export const Summary = () => {
 				)}
 			</motion.div>
 
-			<div className="flex-none w-full max-w-sm mx-auto flex flex-col gap-3 z-20 pb-safe">
+			<div className="flex-none w-full max-w-sm mx-auto flex flex-col gap-2 z-20 pb-safe pt-2">
 				<Button
 					variant="neon"
-					size="xl"
+					size="lg"
 					onClick={handlePlayAgain}
-					className="w-full flex items-center justify-center gap-3 h-14 text-lg"
+					className="w-full flex items-center justify-center gap-2 h-12 text-base"
 				>
-					<RotateCcw size={18} />
+					<RotateCcw size={16} />
 					Play Again
 				</Button>
 				<Button
 					variant="ghost"
 					onClick={handleHome}
-					className="w-full flex items-center justify-center gap-2 text-text-dim hover:text-white"
+					className="w-full flex items-center justify-center gap-2 text-text-dim hover:text-white h-10 text-sm"
 				>
-					<HomeIcon size={16} />
+					<HomeIcon size={14} />
 					Return Home
 				</Button>
 			</div>
