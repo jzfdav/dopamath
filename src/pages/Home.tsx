@@ -16,12 +16,12 @@ export const Home = () => {
 	};
 
 	return (
-		<div className="flex flex-col w-full h-full relative p-6">
+		<div className="flex flex-col w-full h-full relative px-6 overflow-hidden">
 			{/* Background Texture */}
 			<div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none mix-blend-overlay"></div>
 
-			{/* Hero Section (Top 60% - Visual Only) */}
-			<div className="flex-[3] flex flex-col items-center justify-center w-full z-10">
+			{/* Hero Section (Takes remaining space) */}
+			<div className="flex-1 flex flex-col items-center justify-center w-full z-10">
 				<motion.div
 					initial={{ scale: 0.9, opacity: 0 }}
 					animate={{ scale: 1, opacity: 1 }}
@@ -39,8 +39,8 @@ export const Home = () => {
 				</motion.div>
 			</div>
 
-			{/* Thumb Zone Section (Bottom 40%) */}
-			<div className="flex-[2] flex flex-col justify-end gap-8 w-full z-20 pb-safe">
+			{/* Thumb Zone Section (Anchored to bottom) */}
+			<div className="flex-none flex flex-col justify-end gap-6 w-full z-20 pb-8 pt-4">
 				{/* Mode Toggles / Secondary Actions can go here if needed */}
 
 				<div className="flex flex-col gap-4">
