@@ -91,7 +91,7 @@ export const Game = () => {
 						animate={{ opacity: 1, scale: 1, y: 0 }}
 						exit={{ opacity: 0, scale: 1.5, filter: "blur(10px)" }}
 						transition={{ type: "spring", stiffness: 300, damping: 20 }}
-						className="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-white/80 drop-shadow-2xl tracking-tighter text-center"
+						className="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-white/80 drop-shadow-2xl text-center px-4"
 					>
 						{question.equation}
 					</motion.div>
