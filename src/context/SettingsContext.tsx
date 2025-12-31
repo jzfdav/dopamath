@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import type { ContentMode } from "./GameContext";
 
 export type TimerStyle =
 	| "digital"
@@ -14,6 +15,8 @@ interface Settings {
 	audioTicksEnabled: boolean;
 	timerStyle: TimerStyle;
 	dismissedLifelineTips: string[];
+	lastMinutes: number;
+	lastContentMode: ContentMode;
 }
 
 const DEFAULT_SETTINGS: Settings = {
@@ -21,6 +24,8 @@ const DEFAULT_SETTINGS: Settings = {
 	audioTicksEnabled: true,
 	timerStyle: "digital",
 	dismissedLifelineTips: [],
+	lastMinutes: 1,
+	lastContentMode: "mixed",
 };
 
 const SettingsContext = createContext<{

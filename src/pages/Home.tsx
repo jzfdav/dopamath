@@ -1,19 +1,25 @@
 import { motion, type Variants } from "framer-motion";
 import { BarChart3, HelpCircle, Settings as SettingsIcon } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { TimeSelector } from "@/components/TimeSelector";
 import { InfoModal } from "@/components/InfoModal";
+import { useSettings } from "@/context/SettingsContext";
 
 const SESSION_INTERVALS = [1, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29];
 
 export const Home = () => {
 	const navigate = useNavigate();
-	const [selectedTime, setSelectedTime] = useState(1);
-	const [contentMode, setContentMode] = useState<"arithmetic" | "mixed">(
-		"mixed",
-	);
+	const { settings, updateSettings } = useSettings();
+
+	const [selectedTime, setSelectedTime] = useState(settings.lastMinutes);
+	const [contentMode, setContentMode] = useState(settings.lastContentMode);
 	const [isInfoOpen, setIsInfoOpen] = useState(false);
+
+	// Persist changes to settings
+	useEffect(() => {
+		updateSettings({ lastMinutes: selectedTime, lastContentMode: contentMode });
+	}, [selectedTime, contentMode, updateSettings]);
 
 	const handleStart = () => {
 		navigate(`/game?mode=prime&minutes=${selectedTime}&content=${contentMode}`);
