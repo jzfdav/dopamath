@@ -7,25 +7,37 @@ interface Question {
 	answer: number;
 }
 
-const getRandomInt = (min: number, max: number) => {
+function getRandomInt(min: number, max: number): number {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
-}; export const isPrime = (num: number): boolean => {
+}
+
+export function isPrime(num: number): boolean {
 	if (num <= 1) return false;
 	for (let i = 2; i <= Math.sqrt(num); i++) {
 		if (num % i === 0) return false;
 	}
 	return true;
-};
+}
 
-export const generateEquation = (
+function calculate(a: number, b: number, op: Operation): number {
+	switch (op) {
+		case "+":
+			return a + b;
+		case "-":
+			return a - b;
+		case "*":
+			return a * b;
+		case "/":
+			return a / b;
+		default:
+			return a + b;
+	}
+}
+
+export function generateEquation(
 	difficulty: number,
 	contentMode: "arithmetic" | "mixed" = "mixed",
-): Question => {
-	// Difficulty scales from 1 (simple) to 10 (expert)
-	// Level 1-2: Addition/Subtraction single/double digits
-	// Level 3-5: Add/Sub triple digits, Mul/Div single
-	// Level 6-10: Mixed, complex
-
+): Question {
 	let operation: Operation = "+";
 	const r = Math.random();
 
@@ -47,8 +59,8 @@ export const generateEquation = (
 		}
 	}
 
-	let a = 0,
-		b = 0;
+	let a = 0;
+	let b = 0;
 
 	switch (operation) {
 		case "+":
@@ -57,15 +69,15 @@ export const generateEquation = (
 			break;
 		case "-":
 			a = getRandomInt(5, 10 * difficulty);
-			b = getRandomInt(1, a); // Ensure positive result for now
+			b = getRandomInt(1, a);
 			break;
 		case "*":
-			a = getRandomInt(2, 2 + difficulty);
+			a = getRandomInt(2, 2 + Math.floor(difficulty / 2));
 			b = getRandomInt(2, 10);
 			break;
 		case "/":
-			b = getRandomInt(2, 10); // Divisor
-			a = b * getRandomInt(2, 2 + difficulty); // Dividend (ensure clean division)
+			b = getRandomInt(2, 10);
+			a = b * getRandomInt(2, 2 + Math.floor(difficulty / 2));
 			break;
 	}
 
@@ -73,37 +85,31 @@ export const generateEquation = (
 		equation: `${a} ${operation} ${b}`,
 		answer: calculate(a, b, operation),
 	};
-};
+}
 
-const calculate = (a: number, b: number, op: Operation): number => {
-	switch (op) {
-		case "+":
-			return a + b;
-		case "-":
-			return a - b;
-		case "*":
-			return a * b;
-		case "/":
-			return a / b;
-	}
-};
-
-export const generateOptions = (
+export function generateOptions(
 	correctAnswer: number,
-	count: number = 4,
-): number[] => {
+	count = 4,
+): number[] {
 	const options = new Set<number>();
 	options.add(correctAnswer);
 
-	while (options.size < count) {
-		const variance = getRandomInt(1, 10);
+	let attempts = 0;
+	while (options.size < count && attempts < 100) {
+		attempts++;
+		const variance = getRandomInt(1, 15);
 		const direction = Math.random() > 0.5 ? 1 : -1;
 		const option = correctAnswer + variance * direction;
 		if (option >= 0 && !options.has(option)) {
-			// Keeping positive for simplicity/speed
 			options.add(option);
 		}
 	}
 
+	// Fallback if loop fails
+	while (options.size < count) {
+		const fallback = correctAnswer + options.size + 1;
+		options.add(fallback);
+	}
+
 	return Array.from(options).sort(() => Math.random() - 0.5);
-};
+}
