@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { type GameAction, type GameState, gameReducer } from "./GameContext";
+import { type GameAction, type GameState } from "./game/types";
+import { gameReducer } from "./game/reducer";
 
 describe("gameReducer", () => {
 	const initialState: GameState = {

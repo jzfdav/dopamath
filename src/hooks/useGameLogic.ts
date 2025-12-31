@@ -7,6 +7,7 @@ import {
 } from "@/context/GameContext";
 import { useFeedback } from "./useFeedback";
 import { generateEquation, generateOptions } from "@/utils/math";
+import { GAME_CONFIG } from "@/config/gameConfig";
 
 export const useGameLogic = () => {
 	const [searchParams] = useSearchParams();
@@ -25,6 +26,18 @@ export const useGameLogic = () => {
 	const [isSimplifyActive, setIsSimplifyActive] = useState(false);
 	const [isTransitioning, setIsTransitioning] = useState(false);
 
+	// Pause game on tab hide
+	useEffect(() => {
+		const handleVisibilityChange = () => {
+			if (document.visibilityState === "hidden" && state.status === "playing") {
+				dispatch({ type: "PAUSE_GAME" });
+			}
+		};
+
+		document.addEventListener("visibilitychange", handleVisibilityChange);
+		return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+	}, [state.status, dispatch]);
+
 	// Check for game over
 	useEffect(() => {
 		if (state.status === "finished") {
@@ -36,7 +49,7 @@ export const useGameLogic = () => {
 		(difficulty: number) => {
 			const newQuestion = generateEquation(difficulty, state.contentMode);
 			setQuestion(newQuestion);
-			setOptions(generateOptions(newQuestion.answer));
+			setOptions(generateOptions(newQuestion.answer, GAME_CONFIG.OPTION_COUNT));
 			setDisabledOptions([]);
 			setIsFrozen(false);
 			setIsSimplifyActive(false);
@@ -52,7 +65,7 @@ export const useGameLogic = () => {
 
 		const mode = (searchParams.get("mode") as GameMode) || "prime";
 		const contentMode = (searchParams.get("content") as ContentMode) || "mixed";
-		const minutes = Number(searchParams.get("minutes")) || 1;
+		const minutes = Number(searchParams.get("minutes")) || GAME_CONFIG.DEFAULT_SESSION_MINUTES;
 
 		dispatch({
 			type: "START_GAME",
@@ -63,9 +76,9 @@ export const useGameLogic = () => {
 			},
 		});
 
-		const q = generateEquation(1, contentMode);
+		const q = generateEquation(GAME_CONFIG.MIN_DIFFICULTY, contentMode);
 		setQuestion(q);
-		setOptions(generateOptions(q.answer));
+		setOptions(generateOptions(q.answer, GAME_CONFIG.OPTION_COUNT));
 	}, [searchParams, dispatch, state.status]);
 
 	// Timer Loop
@@ -76,7 +89,7 @@ export const useGameLogic = () => {
 			if (!isFrozen) {
 				dispatch({ type: "TICK_TIMER" });
 			}
-		}, 1000);
+		}, GAME_CONFIG.TICK_INTERVAL_MS);
 
 		return () => clearInterval(timer);
 	}, [isFrozen, state.status, dispatch]);
@@ -91,8 +104,8 @@ export const useGameLogic = () => {
 
 			if (isCorrect) {
 				success();
-				if (state.timeLeft <= 5) {
-					dispatch({ type: "ADD_TIME", payload: { seconds: 1 } });
+				if (state.timeLeft <= GAME_CONFIG.CLUTCH_THRESHOLD_SECONDS) {
+					dispatch({ type: "ADD_TIME", payload: { seconds: GAME_CONFIG.GRACE_PERIOD_SECONDS } });
 				}
 			} else {
 				error();
@@ -104,7 +117,7 @@ export const useGameLogic = () => {
 
 					// Recovery path: treat as correct but with half points and slight delay
 					setTimeout(() => {
-						const points = Math.floor(5 * state.difficulty);
+						const points = Math.floor((GAME_CONFIG.BASE_POINTS / 2) * state.difficulty);
 						dispatch({
 							type: "ANSWER_QUESTION",
 							payload: {
@@ -119,24 +132,24 @@ export const useGameLogic = () => {
 						});
 
 						// In recovery, we don't increment difficulty unless they were already due
-						const nextDiff = (state.streak + 1) % 5 === 0
-							? Math.min(state.difficulty + 1, 10)
+						const nextDiff = (state.streak + 1) % GAME_CONFIG.STREAK_DIFFICULTY_STEP === 0
+							? Math.min(state.difficulty + 1, GAME_CONFIG.MAX_DIFFICULTY)
 							: state.difficulty;
 
 						nextQuestion(nextDiff);
-					}, 400);
+					}, GAME_CONFIG.TRANSITION_DELAY_WRONG_MS);
 					return;
 				}
 			}
 
-			const delay = isCorrect ? 150 : 400;
+			const delay = isCorrect ? GAME_CONFIG.TRANSITION_DELAY_CORRECT_MS : GAME_CONFIG.TRANSITION_DELAY_WRONG_MS;
 			setTimeout(() => {
 				dispatch({
 					type: "ANSWER_QUESTION",
 					payload: {
 						id: crypto.randomUUID(),
 						isCorrect,
-						points: isCorrect ? 10 * state.difficulty : 0,
+						points: isCorrect ? GAME_CONFIG.BASE_POINTS * state.difficulty : 0,
 						equation: question.equation,
 						correctAnswer: question.answer,
 						selectedAnswer: answer,
@@ -145,14 +158,14 @@ export const useGameLogic = () => {
 				});
 
 				const newDifficulty =
-					isCorrect && (state.streak + 1) % 5 === 0
-						? Math.min(state.difficulty + 1, 10)
+					isCorrect && (state.streak + 1) % GAME_CONFIG.STREAK_DIFFICULTY_STEP === 0
+						? Math.min(state.difficulty + 1, GAME_CONFIG.MAX_DIFFICULTY)
 						: state.difficulty;
 
 				nextQuestion(newDifficulty);
 			}, delay);
 		},
-		[question, selectedAnswer, isTransitioning, state.lifelines.secondChance, state.difficulty, state.streak, dispatch, success, error, nextQuestion],
+		[question, selectedAnswer, isTransitioning, state.lifelines.secondChance, state.difficulty, state.streak, state.timeLeft, dispatch, success, error, nextQuestion],
 	);
 
 	return {

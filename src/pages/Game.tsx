@@ -7,7 +7,7 @@ import { ParticleBurst } from "@/components/ParticleBurst";
 import { useState, useEffect } from "react";
 import { LifelineModal, type LifelineInfo } from "@/components/LifelineModal";
 import { Clock, Lightbulb, Shield, SkipForward, Zap } from "lucide-react";
-import { useSettings } from "@/context/SettingsContext";
+import { useLifelineManager } from "@/hooks/useLifelineManager";
 
 const LIFELINE_DATA: Record<string, LifelineInfo> = {
 	fiftyFifty: {
@@ -59,13 +59,29 @@ export const Game = () => {
 		dispatch,
 	} = useGameLogic();
 
-	const { settings, updateDismissedTips } = useSettings();
 	const [showParticles, setShowParticles] = useState(false);
 	const [shake, setShake] = useState(false);
 
-	// Modal State
-	const [activeLifelineModal, setActiveLifelineModal] = useState<LifelineInfo | null>(null);
-	const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
+	const {
+		activeLifelineModal,
+		handleModalConfirm,
+		handleModalClose,
+		onFreeze,
+		onFiftyFifty,
+		onSimplify,
+		onSkip,
+		onShield
+	} = useLifelineManager({
+		state,
+		dispatch,
+		question,
+		options,
+		nextQuestion,
+		setIsFrozen,
+		setIsSimplifyActive,
+		setDisabledOptions,
+		lifelineData: LIFELINE_DATA
+	});
 
 	// Detect correct/wrong answer for visual effects
 	useEffect(() => {
@@ -80,61 +96,6 @@ export const Game = () => {
 	}, [selectedAnswer, question]);
 
 	if (!question) return null;
-
-	const triggerLifeline = (name: keyof typeof LIFELINE_DATA, action: () => void) => {
-		if (!state.lifelines[name as keyof typeof state.lifelines]) return;
-
-		// Check if tip is dismissed
-		if (settings.dismissedLifelineTips.includes(name)) {
-			dispatch({ type: "USE_LIFELINE", payload: { name: name as any } });
-			action();
-		} else {
-			// Pause game and show modal
-			dispatch({ type: "PAUSE_GAME" });
-			setPendingAction(() => action);
-			setActiveLifelineModal(LIFELINE_DATA[name]);
-		}
-	};
-
-	const handleModalConfirm = (dontShowAgain: boolean) => {
-		if (activeLifelineModal && dontShowAgain) {
-			updateDismissedTips(activeLifelineModal.id);
-		}
-
-		if (activeLifelineModal) {
-			dispatch({ type: "USE_LIFELINE", payload: { name: activeLifelineModal.id as any } });
-		}
-
-		dispatch({ type: "RESUME_GAME" });
-		pendingAction?.();
-		setActiveLifelineModal(null);
-		setPendingAction(null);
-	};
-
-	const handleModalClose = (dontShowAgain: boolean) => {
-		if (activeLifelineModal && dontShowAgain) {
-			updateDismissedTips(activeLifelineModal.id);
-		}
-		dispatch({ type: "RESUME_GAME" });
-		setActiveLifelineModal(null);
-		setPendingAction(null);
-	};
-
-	const onFreeze = () => triggerLifeline("freezeTime", () => setIsFrozen(true));
-
-	const onFiftyFifty = () => triggerLifeline("fiftyFifty", () => {
-		const wrongOptions = options.filter((opt) => opt !== question.answer);
-		const toDisable = wrongOptions
-			.sort(() => Math.random() - 0.5)
-			.slice(0, 2);
-		setDisabledOptions(toDisable);
-	});
-
-	const onSimplify = () => triggerLifeline("simplify", () => setIsSimplifyActive(true));
-
-	const onSkip = () => triggerLifeline("skip", () => nextQuestion(state.difficulty));
-
-	const onShield = () => triggerLifeline("secondChance", () => { });
 
 	return (
 		<motion.div
