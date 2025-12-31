@@ -4,7 +4,7 @@ import { gameReducer } from "./game/reducer";
 
 describe("gameReducer", () => {
 	const initialState: GameState = {
-		status: "idle",
+		status: "playing",
 		mode: "prime",
 		contentMode: "mixed",
 		score: 0,

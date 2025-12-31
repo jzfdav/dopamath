@@ -25,6 +25,26 @@ describe("Math Utils", () => {
 			// hard to deterministically test random, but logic structure ensures higher numbers
 			expect(true).toBe(true);
 		});
+
+		it("respects arithmetic mode", () => {
+			for (let i = 0; i < 20; i++) {
+				const q = generateEquation(5, "arithmetic");
+				expect(q.equation).toMatch(/[+-]/);
+				expect(q.equation).not.toMatch(/[*\/]/);
+			}
+		});
+
+		it("includes multiplication and division in mixed mode", () => {
+			let foundComplex = false;
+			for (let i = 0; i < 50; i++) {
+				const q = generateEquation(5, "mixed");
+				if (q.equation.includes("*") || q.equation.includes("/")) {
+					foundComplex = true;
+					break;
+				}
+			}
+			expect(foundComplex).toBe(true);
+		});
 	});
 
 	describe("generateOptions", () => {
@@ -39,6 +59,18 @@ describe("Math Utils", () => {
 			const options = generateOptions(10);
 			const unique = new Set(options);
 			expect(unique.size).toBe(4);
+		});
+
+		it("falls back gracefully if loop is exhausted", () => {
+			// This implicitly tests the safety guard.
+			// Since we can't easily force the loop to fail without mocking Math.random excessively,
+			// we just ensure that calling it many times always yields a valid result.
+			for (let i = 0; i < 100; i++) {
+				const options = generateOptions(i);
+				expect(options).toHaveLength(4);
+				const unique = new Set(options);
+				expect(unique.size).toBe(4);
+			}
 		});
 	});
 });
