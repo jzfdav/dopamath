@@ -1,4 +1,4 @@
-import { motion, type PanInfo, useMotionValue, useSpring } from "framer-motion";
+import { motion, type PanInfo, useMotionValue, animate } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { playTickSound, triggerHaptic } from "@/utils/audio";
 
@@ -10,6 +10,7 @@ interface TimeSelectorProps {
 
 const ITEM_WIDTH = 80;
 const ITEM_SPACING = 20;
+const FULL_ITEM_WIDTH = ITEM_WIDTH + ITEM_SPACING;
 
 export const TimeSelector = ({
 	options,
@@ -19,21 +20,21 @@ export const TimeSelector = ({
 	const containerRef = useRef<HTMLDivElement>(null);
 	const [width, setWidth] = useState(0);
 	const x = useMotionValue(0);
-	const smoothX = useSpring(x, { stiffness: 400, damping: 40 });
 
-	// Handle Circular Logic: Internal options list
+	// Handle Circular Logic: Internal options list (Triple for infinite feel)
 	const internalOptions = [...options, ...options, ...options];
 	const offsetCount = options.length;
 
 	useEffect(() => {
 		if (containerRef.current) {
-			setWidth(containerRef.current.offsetWidth);
-			// Center the initial selected item (in the second set)
-			const centerOffset = containerRef.current.offsetWidth / 2;
+			const containerWidth = containerRef.current.offsetWidth;
+			setWidth(containerWidth);
+
+			const centerOffset = containerWidth / 2;
 			const selectedIndex = options.indexOf(selected) + offsetCount;
 			const initialX =
 				centerOffset -
-				selectedIndex * (ITEM_WIDTH + ITEM_SPACING) -
+				selectedIndex * FULL_ITEM_WIDTH -
 				ITEM_WIDTH / 2;
 			x.set(initialX);
 		}
@@ -41,60 +42,63 @@ export const TimeSelector = ({
 
 	const handleDragEnd = (_: unknown, info: PanInfo) => {
 		const centerOffset = width / 2;
-		const currentX = x.get() + info.offset.x;
+		// Determine targeted snap point considering momentum
+		const targetX = x.get() + info.velocity.x * 0.1;
 
-		const rawIndex =
-			(centerOffset - ITEM_WIDTH / 2 - currentX) / (ITEM_WIDTH + ITEM_SPACING);
-		const snappedIndex = Math.round(rawIndex);
+		const rawIndex = (centerOffset - ITEM_WIDTH / 2 - targetX) / FULL_ITEM_WIDTH;
+		let snappedIndex = Math.round(rawIndex);
 
-		// Virtualized loop logic: if we go too far, snap back to middle set
-		let finalIndex = snappedIndex;
-		if (snappedIndex < offsetCount) {
-			finalIndex = snappedIndex + offsetCount;
-		} else if (snappedIndex >= offsetCount * 2) {
-			finalIndex = snappedIndex - offsetCount;
-		}
+		// Clamp to valid range of the triple-list
+		snappedIndex = Math.max(0, Math.min(snappedIndex, internalOptions.length - 1));
 
-		const newX =
-			centerOffset - finalIndex * (ITEM_WIDTH + ITEM_SPACING) - ITEM_WIDTH / 2;
+		const finalX = centerOffset - snappedIndex * FULL_ITEM_WIDTH - ITEM_WIDTH / 2;
 
-		x.set(newX);
+		// Animate to snap point
+		animate(x, finalX, {
+			type: "spring",
+			stiffness: 400,
+			damping: 40,
+			onComplete: () => {
+				// Re-center for infinite loop if we're in the side sets
+				if (snappedIndex < offsetCount || snappedIndex >= offsetCount * 2) {
+					const adjustedIndex = snappedIndex < offsetCount
+						? snappedIndex + offsetCount
+						: snappedIndex - offsetCount;
 
-		const actualValue = internalOptions[finalIndex];
+					const resetX = centerOffset - adjustedIndex * FULL_ITEM_WIDTH - ITEM_WIDTH / 2;
+					x.set(resetX);
+				}
+			}
+		});
+
+		const actualValue = internalOptions[snappedIndex];
 		if (actualValue !== selected) {
 			onSelect(actualValue);
 			playTickSound();
-			triggerHaptic();
+			triggerHaptic("light");
 		}
 	};
 
-	// Listen to changes to play sound while dragging?
-	// Ideally we want sound as we pass thresholds.
-	// For now, let's play sound only on settle for simplicity, or we can use `useMotionValueEvent` if we had it.
-	// Simple snap-on-release is safer for "tic tac" feel without flooding.
-
 	return (
 		<div
-			className="relative h-24 w-full flex items-center justify-center overflow-hidden"
+			className="relative h-24 w-full flex items-center justify-center overflow-hidden touch-pan-y"
 			ref={containerRef}
 		>
 			{/* Gradient masks for fading edges */}
-			<div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-black to-transparent z-10 pointer-events-none"></div>
-			<div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-black to-transparent z-10 pointer-events-none"></div>
+			<div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-black via-black/80 to-transparent z-10 pointer-events-none"></div>
+			<div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-black via-black/80 to-transparent z-10 pointer-events-none"></div>
 
-			{/* Selection Indicator (Center highight) */}
+			{/* Selection Indicator (Center highlight) */}
 			<div className="absolute w-[80px] h-[80px] rounded-2xl border-2 border-primary/50 shadow-[0_0_20px_rgba(0,255,157,0.2)] z-0 box-content"></div>
 
 			<motion.div
 				className="flex absolute left-0 cursor-grab active:cursor-grabbing"
-				style={{ x: smoothX }}
+				style={{ x }}
 				drag="x"
-				dragConstraints={{ left: -1000, right: 1000 }} // Loose constraints, we snap anyway
+				dragElastic={0.1}
 				onDragEnd={handleDragEnd}
-				// Custom elasticity could go here
 			>
 				{internalOptions.map((opt, i) => (
-					// biome-ignore lint/suspicious/noArrayIndexKey: Essential for virtual loop
 					<Item key={`${opt}-${i}`} value={opt} isSelected={opt === selected} />
 				))}
 			</motion.div>
@@ -108,11 +112,6 @@ interface ItemProps {
 }
 
 const Item = ({ value, isSelected }: ItemProps) => {
-	// Calculate distance from center to scale/fade
-	// Real X position relative to container center
-	// We can't easily transform inside child based on parent motion value without passing it down.
-	// Let's just do simple styling for now.
-
 	return (
 		<motion.div
 			className={`
