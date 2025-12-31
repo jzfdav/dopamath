@@ -30,25 +30,6 @@ export const Home = () => {
 			exit={{ opacity: 0, x: 20 }}
 			transition={{ duration: 0.3 }}
 		>
-			{/* Top Bar Navigation */}
-			<div className="absolute top-safe left-6 right-6 z-50 pt-4 flex justify-between">
-				<Button
-					variant="ghost"
-					size="sm"
-					onClick={() => navigate("/stats")}
-					className="p-2 h-auto text-text-dim/40 hover:text-secondary transition-colors"
-				>
-					<BarChart3 size={24} />
-				</Button>
-				<Button
-					variant="ghost"
-					size="sm"
-					onClick={() => navigate("/settings")}
-					className="p-2 h-auto text-text-dim/40 hover:text-primary transition-colors"
-				>
-					<SettingsIcon size={24} />
-				</Button>
-			</div>
 
 			{/* Hero Section */}
 			<div className="flex-1 flex flex-col items-center justify-center w-full z-10">
@@ -120,9 +101,9 @@ export const Home = () => {
 					</div>
 				</div>
 
-				{/* Primary CTA */}
+				{/* Primary CTA with Secondary Actions */}
 				<motion.div
-					initial={{ y: 100, opacity: 0 }}
+					initial={{ y: 20, opacity: 0 }}
 					animate={{ y: 0, opacity: 1 }}
 					transition={{
 						delay: 0.3,
@@ -130,11 +111,22 @@ export const Home = () => {
 						stiffness: 200,
 						damping: 20,
 					}}
+					className="flex items-center gap-4"
 				>
+					<Button
+						variant="ghost"
+						size="sm"
+						onClick={() => navigate("/stats")}
+						className="p-4 h-20 w-16 glass-panel rounded-2xl flex flex-col items-center justify-center text-text-dim/60 hover:text-secondary hover:border-secondary/30 transition-all active:scale-90"
+					>
+						<BarChart3 size={24} />
+						<span className="text-[8px] mt-1 font-bold uppercase tracking-tighter">Stats</span>
+					</Button>
+
 					<Button
 						variant="primary"
 						size="xl"
-						className="w-full h-20 text-2xl shadow-[0_0_30px_rgba(0,255,157,0.4)] animate-pulse hover:animate-none flex items-center justify-center gap-4 text-black font-black tracking-widest"
+						className="flex-1 h-20 text-2xl shadow-[0_0_30px_rgba(0,255,157,0.4)] animate-pulse hover:animate-none flex items-center justify-center gap-4 text-black font-black tracking-widest"
 						onClick={handleUrgeKiller}
 					>
 						<span className="relative flex h-3 w-3">
@@ -142,6 +134,16 @@ export const Home = () => {
 							<span className="relative inline-flex rounded-full h-3 w-3 bg-black"></span>
 						</span>
 						ENGAGE
+					</Button>
+
+					<Button
+						variant="ghost"
+						size="sm"
+						onClick={() => navigate("/settings")}
+						className="p-4 h-20 w-16 glass-panel rounded-2xl flex flex-col items-center justify-center text-text-dim/60 hover:text-primary hover:border-primary/30 transition-all active:scale-90"
+					>
+						<SettingsIcon size={24} />
+						<span className="text-[8px] mt-1 font-bold uppercase tracking-tighter">Set</span>
 					</Button>
 				</motion.div>
 			</div>
