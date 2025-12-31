@@ -1,5 +1,6 @@
 import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { GameState } from "@/context/game/types";
 import { useLifelineManager } from "./useLifelineManager";
 
 // Mock dependencies
@@ -39,9 +40,12 @@ describe("useLifelineManager", () => {
 			lifelines: {
 				freezeTime: true,
 				skip: true,
+				fiftyFifty: true,
+				secondChance: true,
+				simplify: true,
 			},
 			difficulty: 1,
-		},
+		} as unknown as GameState,
 		dispatch: mockDispatch,
 		question: { answer: 10, equation: "5+5" },
 		options: [10, 5, 2, 8],

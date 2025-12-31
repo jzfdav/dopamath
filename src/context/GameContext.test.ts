@@ -53,6 +53,7 @@ describe("gameReducer", () => {
 				correctAnswer: 4,
 				selectedAnswer: 4,
 				timestamp: 1000,
+				newDifficulty: 2,
 			},
 		};
 		const state = gameReducer(initialState, action);
@@ -77,6 +78,7 @@ describe("gameReducer", () => {
 				correctAnswer: 25,
 				selectedAnswer: 20,
 				timestamp: 2000,
+				newDifficulty: 1,
 			},
 		};
 		const state = gameReducer(prevState, action);
