@@ -9,9 +9,7 @@ interface Question {
 
 const getRandomInt = (min: number, max: number) => {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
-};
-
-export const isPrime = (num: number): boolean => {
+}; export const isPrime = (num: number): boolean => {
 	if (num <= 1) return false;
 	for (let i = 2; i <= Math.sqrt(num); i++) {
 		if (num % i === 0) return false;

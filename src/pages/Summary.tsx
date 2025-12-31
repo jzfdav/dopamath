@@ -43,8 +43,9 @@ export const Summary = () => {
 		saveGameResult({
 			score: state.score,
 			mode: state.mode,
-			timestamp: Date.now(),
+			correctAnswers: state.correctAnswers,
 			answersAttempted: state.answersAttempted,
+			timestamp: Date.now(),
 		});
 
 		hasSaved.current = true;

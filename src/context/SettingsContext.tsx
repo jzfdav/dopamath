@@ -40,8 +40,13 @@ export const SettingsProvider = ({
 	children: React.ReactNode;
 }) => {
 	const [settings, setSettings] = useState<Settings>(() => {
-		const saved = localStorage.getItem("dopamath_settings");
-		return saved ? JSON.parse(saved) : DEFAULT_SETTINGS;
+		try {
+			const saved = localStorage.getItem("dopamath_settings");
+			return saved ? JSON.parse(saved) : DEFAULT_SETTINGS;
+		} catch (e) {
+			console.error("Failed to parse settings", e);
+			return DEFAULT_SETTINGS;
+		}
 	});
 
 	useEffect(() => {

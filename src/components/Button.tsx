@@ -1,17 +1,19 @@
 import { type HTMLMotionProps, motion } from "framer-motion";
 import { twMerge } from "tailwind-merge";
+import { triggerHaptic } from "@/utils/audio";
 
 interface ButtonProps extends HTMLMotionProps<"button"> {
 	variant?:
-		| "primary"
-		| "secondary"
-		| "danger"
-		| "ghost"
-		| "outline"
-		| "neon"
-		| "glass";
+	| "primary"
+	| "secondary"
+	| "danger"
+	| "ghost"
+	| "outline"
+	| "neon"
+	| "glass";
 	size?: "sm" | "md" | "lg" | "xl";
 	className?: string;
+	hapticIntensity?: "light" | "medium" | "heavy" | null;
 }
 
 export const Button = ({
@@ -20,10 +22,11 @@ export const Button = ({
 	className,
 	children,
 	onClick,
+	hapticIntensity = "light",
 	...props
 }: ButtonProps) => {
 	const baseStyles =
-		"relative overflow-hidden font-bold rounded-2xl transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed";
+		"relative overflow-hidden font-bold rounded-2xl transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed text-center flex items-center justify-center";
 
 	const variants = {
 		primary:
@@ -48,8 +51,8 @@ export const Button = ({
 	};
 
 	const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-		if (navigator.vibrate) {
-			navigator.vibrate(10); // Light haptic tap
+		if (hapticIntensity) {
+			triggerHaptic(hapticIntensity);
 		}
 		onClick?.(e);
 	};

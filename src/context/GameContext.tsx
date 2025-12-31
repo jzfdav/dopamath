@@ -40,36 +40,36 @@ export interface GameHistoryItem {
 
 export type GameAction =
 	| {
-			type: "START_GAME";
-			payload: { mode: GameMode; contentMode: ContentMode; duration: number };
-	  }
+		type: "START_GAME";
+		payload: { mode: GameMode; contentMode: ContentMode; duration: number };
+	}
 	| { type: "PAUSE_GAME" }
 	| { type: "RESUME_GAME" }
 	| { type: "END_GAME" }
 	| { type: "TICK_TIMER" }
 	| {
-			type: "ANSWER_QUESTION";
-			payload: {
-				id: string;
-				isCorrect: boolean;
-				points: number;
-				equation: string;
-				correctAnswer: number;
-				selectedAnswer: number;
-				timestamp: number;
-			};
-	  }
+		type: "ANSWER_QUESTION";
+		payload: {
+			id: string;
+			isCorrect: boolean;
+			points: number;
+			equation: string;
+			correctAnswer: number;
+			selectedAnswer: number;
+			timestamp: number;
+		};
+	}
 	| {
-			type: "USE_LIFELINE";
-			payload: {
-				name:
-					| "fiftyFifty"
-					| "skip"
-					| "freezeTime"
-					| "secondChance"
-					| "simplify";
-			};
-	  };
+		type: "USE_LIFELINE";
+		payload: {
+			name:
+			| "fiftyFifty"
+			| "skip"
+			| "freezeTime"
+			| "secondChance"
+			| "simplify";
+		};
+	};
 
 // --- Initial State ---
 
@@ -123,6 +123,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 			return { ...state, timeLeft: state.timeLeft - 1 };
 
 		case "ANSWER_QUESTION": {
+			if (state.status !== "playing") return state;
 			const newScore =
 				state.score + (action.payload.isCorrect ? action.payload.points : 0);
 
@@ -149,6 +150,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 		}
 
 		case "USE_LIFELINE":
+			if (state.status !== "playing") return state;
 			return {
 				...state,
 				lifelines: {

@@ -246,7 +246,8 @@ export const Game = () => {
 												: "ghost"
 										}
 										size="lg"
-										disabled={isDisabled || selectedAnswer !== null || state.status === "paused"}
+										hapticIntensity={null}
+										disabled={isDisabled || selectedAnswer !== null || state.status === "paused" || state.status === "finished"}
 										className={`w-full h-24 text-2xl font-black rounded-3xl transition-all ${isSelected ? "ring-4 ring-white/20" : "glass-panel"
 											} ${isDisabled ? "opacity-30 grayscale cursor-not-allowed" : ""}`}
 										onClick={() => handleAnswer(option)}
