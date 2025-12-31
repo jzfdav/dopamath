@@ -48,7 +48,7 @@ export const Home = () => {
 			</div>
 
 			{/* Thumb Zone Section (Anchored to bottom) */}
-			<div className="flex-none flex flex-col justify-end gap-8 w-full z-20 pb-4 pt-4">
+			<div className="flex-none flex flex-col justify-end gap-6 w-full z-20 pb-8 pt-2">
 				{/* Time Selector Wheel */}
 				<div className="flex flex-col gap-2">
 					<div className="flex items-center justify-center">
